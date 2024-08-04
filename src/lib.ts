@@ -1,0 +1,39 @@
+import { SessionOptions } from "iron-session";
+
+
+// Define a new type for session user data without sensitive fields
+type SessionUser = Omit<User, 'password_hash'>;
+
+export interface SessionData {
+    userId?:string;
+    username?:string;
+    img?:string;
+    company?:string
+    isLoggedIn:boolean
+    user?: SessionUser;
+}
+
+export const defaultSession:SessionData={
+    isLoggedIn:false
+
+}
+
+export const sessionOptions: SessionOptions = {
+    password: process.env.SECRET_KEY!,
+    cookieName: "grambam-session",
+    cookieOptions:{
+    httpOnly:true,
+    secure: process.env.NODE_ENV === "production",
+
+    }
+}
+
+export interface User  {
+    id: string;
+    username: string;
+    email: string;
+    password_hash: string;
+  };
+  
+
+
