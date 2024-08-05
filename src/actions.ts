@@ -17,13 +17,16 @@ export const getSession = async (): Promise<IronSession<SessionData>> => {
   if (!session.isLoggedIn) {
     session.isLoggedIn = false;
   }
-  session.username
+  //Add checks for user in database everytime if you want
 
   return session;
 };
 
 // Login function to handle user authentication
-export const login = async (formData: FormData) => {
+export const login = async (
+  prevState:{error:undefined | string},
+  formData: FormData
+) => {
   const session = await getSession();
 
   const email = formData.get("email") as string;
@@ -37,7 +40,7 @@ export const login = async (formData: FormData) => {
 
   if (result.length === 0) {
     // Handle case where user is not found
-    return { success: false, message: "User not found" };
+    return { success: false, error: "Invalid username or password" };
   }
 
   const user = result[0];
@@ -47,7 +50,7 @@ export const login = async (formData: FormData) => {
 
   if (!passwordMatch) {
     // Handle case where password does not match
-    return { success: false, message: "Invalid password" };
+    return { success: false, error: "Invalid username or password" };
   }
 
   // Set session data for logged-in user
@@ -67,7 +70,6 @@ export const login = async (formData: FormData) => {
 // Logout function to clear the session data
 export const logout = async () => {
   const session = await getSession();
-  session.isLoggedIn = false;
-  session.user = undefined;
-  await session.save();
+  session.destroy();
+  redirect("/");
 };
