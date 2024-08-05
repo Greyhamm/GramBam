@@ -1,15 +1,16 @@
-import LoginForm from  "@/components/loginForm"
+import LoginForm from "@/components/loginForm";
 
-const LoginPage = async () => {
+const LoginPage = () => {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <h1 className="inline-block text-xl font-bold text-center text-black mb-4">
+          Login Page
+        </h1>
+        <LoginForm />
+      </div>
+    </div>
+  );
+};
 
-    return (
-        <div className='login'>
-            <h1>
-                Welcome to the login page
-            </h1>
-            <LoginForm/>
-        </div>
-    )
-}
-
-export default LoginPage
+export default LoginPage;

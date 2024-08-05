@@ -1,16 +1,16 @@
-import LoginForm from  "@/components/loginForm"
 import SignupForm from "@/components/signupForm"
 
 const SignupPage = () => {
 
     return (
-        <div className='signup'>
-            <h1>
-                Welcome to the login page
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+            <h1 className="inline-block text-xl font-bold text-center text-black mb-4">
+              Signup Page
             </h1>
-            <SignupForm/>
+            <SignupForm />
+          </div>
         </div>
-    )
-}
-
+      );
+    };
 export default SignupPage

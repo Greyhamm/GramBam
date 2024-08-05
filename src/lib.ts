@@ -35,5 +35,19 @@ export interface User  {
     password_hash: string;
   };
   
+ export interface Company {
+    id: string;
+    name: string;
+  }
+  
+ export interface ProjectFormProps {
+    companies: Company[];
+    userId: string | undefined;
+  }
 
-
+export  interface CreateProjectParams {
+    companyId: string;
+    name: string;
+    description: string;
+    client?: string;
+  }

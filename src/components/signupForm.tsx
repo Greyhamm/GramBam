@@ -5,24 +5,72 @@ import { useFormState } from "react-dom";
 import { useRouter } from "next/navigation";
 
 const SignupForm = () => {
-    const [state, formAction] = useFormState<any, FormData>(signup, undefined);
-    const router = useRouter();
-  
-    const handleSignupRedirect = () => {
-      router.push("/login");
-    };
+  const [state, formAction] = useFormState<any, FormData>(signup, undefined);
+  const router = useRouter();
+
+  const handleLoginRedirect = () => {
+    router.push("/login");
+  };
+
   return (
-    <div>
-    <form action={formAction}>
-      <input type="text" name="username" required placeholder="Username" />
-      <input type="email" name="email" required placeholder="Email" />
-      <input type="password" name="password" required placeholder="Password" />
-      <button>Signup</button>
-      {state?.error && <p>{state.error}</p>}
-      <div>
-        <button onClick={handleSignupRedirect}>Login</button>
-      </div>
-    </form>
+    <div className="w-full max-w-xs form-container">
+      <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" action={formAction}>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+            Username
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="username"
+            type="text"
+            name="username"
+            required
+            placeholder="Username"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+            Email
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="email"
+            type="email"
+            name="email"
+            required
+            placeholder="Email"
+          />
+        </div>
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+            Password
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+            id="password"
+            type="password"
+            name="password"
+            required
+            placeholder="Password"
+          />
+          {state?.error && <p className="text-red-500 text-xs italic">{state.error}</p>}
+        </div>
+        <div className="flex items-center justify-between">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="submit"
+          >
+            Sign Up
+          </button>
+          <button
+            className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+            onClick={handleLoginRedirect}
+            type="button"
+          >
+            Login
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

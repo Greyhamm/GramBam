@@ -9,7 +9,8 @@ import { sessionOptions, SessionData, defaultSession, User } from './lib';
 import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
-
+import { Company, CreateProjectParams
+ } from "./lib";
 // Get session function to retrieve the current session
 export const getSession = async (): Promise<IronSession<SessionData>> => {
   const session = await getIronSession<SessionData>(cookies(), sessionOptions);
@@ -163,40 +164,80 @@ export const createCompany = async (formData: FormData) => {
 export const showUserCompanies = async () => {
   const session = await getSession();
   const user = session.user?.id
-
-
-
-
 }
 
 
-export const getUserCompanies = async () => {
+export const getUserCompanies = async (): Promise<Company[]> => {
   try {
-    // Get the current session to identify the user
     const session = await getSession();
 
-  if (!session.isLoggedIn || !session.user) {
-    throw new Error("You must be logged in to view your companies.");
+    if (!session.isLoggedIn || !session.user) {
+      throw new Error("You must be logged in to view your companies.");
+    }
+    const userId = session.user.id;
+
+    // Fetch companies associated with the user
+    const { rows } = await sql`
+      SELECT c.id, c.name
+      FROM companies c
+      JOIN user_roles ur ON c.id = ur.company_id
+      WHERE ur.user_id = ${userId}
+    `;
+
+    // Map the results to the Company structure
+    const userCompanies: Company[] = rows.map(row => ({
+      id: row.id,
+      name: row.name,
+    }));
+
+    return userCompanies;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch the user companies.');
   }
-  const userId = session.user?.id;
+};
 
 
-  // Query the user_roles table to find company IDs associated with the user
-  const data = await sql`
-    SELECT companies.id, companies.name
-    FROM user_roles
-    JOIN companies ON user_roles.company_id = companies.id
-    WHERE user_roles.user_id = ${userId}
-  `;
+export const createProject = async ({
+  companyId,
+  name,
+  description,
+  client,
+}: CreateProjectParams) => {
+  try {
+    // Get the current user session
+    const session = await getSession();
 
-  // Map the results to a more usable structure if necessary
-  const userCompanies = data.rows.map(company => ({
-    id: company.id,
-    name: company.name,
-  }));
+    if (!session.isLoggedIn || !session.user) {
+      throw new Error("You must be logged in to create a project.");
+    }
 
-  return userCompanies;
-} catch (error) {
-  console.error('Database Error:', error);
-  throw new Error('Failed to fetch the user companies.');
-}}
+    const userId = session.user.id;
+
+    console.log('Session User ID:', userId); // Debugging output
+
+    // Validate that the lead_user exists in the users table
+    const userExists = await sql`
+      SELECT 1 FROM userz WHERE id = ${userId} LIMIT 1;
+    `;
+
+    if (userExists.rowCount === 0) {
+      console.error("Lead user does not exist in the users table:", userId); // More debugging output
+      throw new Error("Lead user does not exist.");
+    }
+
+    // Insert the new project into the database
+    const { rows } = await sql`
+      INSERT INTO projects (company_id, name, description, client, lead_user, created_at)
+      VALUES (${companyId}, ${name}, ${description}, ${client || null}, ${userId}, NOW())
+      RETURNING id
+    `;
+
+    console.log('New Project ID:', rows[0].id); // Debugging output
+
+    return rows[0].id;
+  } catch (error) {
+    console.error('Error creating project:', error);
+    throw new Error('Could not create the project.');
+  }
+};
