@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import { sessionOptions, SessionData, defaultSession, User } from './lib';
 import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
+import { revalidatePath } from "next/cache";
 
 // Get session function to retrieve the current session
 export const getSession = async (): Promise<IronSession<SessionData>> => {
@@ -73,3 +74,79 @@ export const logout = async () => {
   session.destroy();
   redirect("/");
 };
+
+
+export const createCompany = async (formData: FormData) => {
+  const session = await getSession();
+
+  const user = session.user?.username
+  const companyName = formData.get("companyName") as string;
+
+  if (!session.isLoggedIn || !session.user) {
+    throw new Error("You must be logged in to create a company.");
+  }
+
+  const createdBy = session.user?.id;
+
+  // Insert the new company into the companies table
+  const { rows: companyRows } = await sql`
+    INSERT INTO companies (name, created_at, created_by)
+    VALUES (${companyName}, NOW(), ${createdBy})
+    RETURNING id
+  `;
+  // Get the created company's ID
+  const companyId = companyRows[0].id;
+
+  // Define the role (you can change 'admin' to any appropriate role)
+  const role = 'creator';
+
+  // Insert the user into the user_roles table
+  await sql`
+    INSERT INTO user_roles (user_id, company_id, role)
+    VALUES (${createdBy}, ${companyId}, ${role})
+  `;
+
+  revalidatePath("/profile");
+}
+
+
+export const showUserCompanies = async () => {
+  const session = await getSession();
+  const user = session.user?.id
+
+
+
+
+}
+
+
+export const getUserCompanies = async () => {
+  try {
+    // Get the current session to identify the user
+    const session = await getSession();
+
+  if (!session.isLoggedIn || !session.user) {
+    throw new Error("You must be logged in to view your companies.");
+  }
+  const userId = session.user?.id;
+
+
+  // Query the user_roles table to find company IDs associated with the user
+  const data = await sql`
+    SELECT companies.id, companies.name
+    FROM user_roles
+    JOIN companies ON user_roles.company_id = companies.id
+    WHERE user_roles.user_id = ${userId}
+  `;
+
+  // Map the results to a more usable structure if necessary
+  const userCompanies = data.rows.map(company => ({
+    id: company.id,
+    name: company.name,
+  }));
+
+  return userCompanies;
+} catch (error) {
+  console.error('Database Error:', error);
+  throw new Error('Failed to fetch the user companies.');
+}}
