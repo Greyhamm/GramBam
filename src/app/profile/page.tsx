@@ -17,25 +17,31 @@ const ProfilePage = async () => {
   const companies = await getUserCompanies();
 
   return (
-    <div className="profile">
-      <div>
-        <h1>Welcome to the profile page</h1>
-        <p>Welcome, <b>{session.user?.username}</b></p>
+    <main className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4"></h1>
+      
+      <div className="grid gap-7 md:grid-cols-2">
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-black mb-4">Create a New Company</h2>
+          <CreateCompany />
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold  text-black mb-4">Your Companies</h2>
+          <ul>
+            {companies.length > 0 ? (
+              companies.map((company) => (
+                <li key={company.id} className="text-black mb-2">
+                  {company.name}
+                </li>
+              ))
+            ) : (
+              <li className="text-gray-500">You are not associated with any companies.</li>
+            )}
+          </ul>
+        </div>
       </div>
-      <div>
-        <CreateCompany />
-        <p>Your Companies:</p>
-        <ul>
-          {companies.length > 0 ? (
-            companies.map((company) => (
-              <li key={company.id}>{company.name}</li>
-            ))
-          ) : (
-            <li>You are not associated with any companies.</li>
-          )}
-        </ul>
-      </div>
-    </div>
+    </main>
   );
 };
 
