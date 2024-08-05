@@ -76,6 +76,56 @@ export const logout = async () => {
 };
 
 
+export const signup = async (
+  prevState: { error: undefined | string },
+  formData: FormData
+) => {
+  const session = await getSession();
+
+  const email = formData.get("email") as string;
+  const username = formData.get("username") as string;
+  const formPassword = formData.get("password") as string;
+
+  if (!email || !username || !formPassword) {
+    return { success: false, error: "All fields are required" };
+  }
+
+  // Check if the user already exists
+  const { rows: existingUsers } = await sql`
+    SELECT * FROM userz WHERE email = ${email}
+  `;
+
+  if (existingUsers.length > 0) {
+    return { success: false, error: "User already exists" };
+  }
+
+  // Hash the password
+  const saltRounds = 10;
+  const passwordHash = await bcrypt.hash(formPassword, saltRounds);
+
+  // Insert the new user into the database
+  const { rows } = await sql`
+    INSERT INTO userz (email, username, password_hash)
+    VALUES (${email}, ${username}, ${passwordHash})
+    RETURNING id, username
+  `;
+
+  const newUser = rows[0];
+
+  // Set session data for the new user
+  session.isLoggedIn = true;
+  session.user = {
+    id: newUser.id,
+    username: newUser.username,
+    email: email,
+  };
+
+  await session.save();
+
+  redirect("/profile");
+};
+
+
 export const createCompany = async (formData: FormData) => {
   const session = await getSession();
 

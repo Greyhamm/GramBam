@@ -1,15 +1,16 @@
 import LoginForm from  "@/components/loginForm"
+import SignupForm from "@/components/signupForm"
 
-const LoginPage = async () => {
+const SignupPage = () => {
 
     return (
-        <div className='login'>
+        <div className='signup'>
             <h1>
                 Welcome to the login page
             </h1>
-            <LoginForm/>
+            <SignupForm/>
         </div>
     )
 }
 
-export default LoginPage
+export default SignupPage

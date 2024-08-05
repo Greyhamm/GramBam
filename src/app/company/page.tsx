@@ -1,5 +1,7 @@
-const CompanyPage = () => {
+import { getSession } from "@/actions"
 
+const CompanyPage = async () => {
+    const session = await getSession();
     return (
         <div className='company'>
             <h1>
