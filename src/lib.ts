@@ -45,7 +45,7 @@ export interface User  {
     userId: string | undefined;
   }
 
-export  interface CreateProjectParams {
+export interface CreateProjectParams {
     companyId: string;
     name: string;
     description: string;
