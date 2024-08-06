@@ -279,3 +279,47 @@ export const getCompanyProjects = async (companyId: string): Promise<Project[]> 
     throw new Error('Failed to fetch projects.');
   }
 };
+
+//Getting project details by id 
+export const getProjectById = async (projectId: string): Promise<Project | null> => {
+  try {
+    if (!projectId) {
+      throw new Error("Project ID is required.");
+    }
+
+    // Fetch the project with the specified ID
+    const { rows } = await sql`
+      SELECT 
+        id, 
+        company_id, 
+        name, 
+        description, 
+        created_at, 
+        client, 
+        lead_user 
+      FROM projects 
+      WHERE id = ${projectId}
+    `;
+
+    // If no project is found, return null
+    if (rows.length === 0) {
+      return null;
+    }
+
+    // Map the result to the Project structure
+    const project: Project = {
+      id: rows[0].id,
+      company_id: rows[0].company_id,
+      name: rows[0].name,
+      description: rows[0].description,
+      created_at: rows[0].created_at,
+      client: rows[0].client,
+      lead_user: rows[0].lead_user,
+    };
+
+    return project;
+  } catch (error) {
+    console.error('Error fetching project:', error);
+    throw new Error('Failed to fetch project.');
+  }
+};
