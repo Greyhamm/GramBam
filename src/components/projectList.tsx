@@ -1,64 +1,84 @@
-// src/components/ProjectPage.tsx
+// src/components/projectList.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { getCompanyProjects } from "@/actions"; 
+import { useState, useEffect, ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
+import { getCompanyProjects } from "@/actions"; // Import the getCompanyProjects function
 import { Company, Project } from "@/lib";
-import ProjectForm from "@/components/projectForm"; 
 
-interface ProjectPageProps {
+interface ProjectListProps {
   companies: Company[];
-  userId: string | undefined;
+  userId?: string;
 }
 
-const ProjectPage: React.FC<ProjectPageProps> = ({ companies, userId }) => {
-  const [selectedCompany, setSelectedCompany] = useState<string>(companies[0]?.id || "");
+const ProjectList: React.FC<ProjectListProps> = ({ companies, userId }) => {
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(companies[0]?.id);
   const [projects, setProjects] = useState<Project[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
-    if (selectedCompany) {
-      (async () => {
+    if (selectedCompanyId) {
+      // Fetch the projects for the selected company
+      const fetchProjects = async () => {
         try {
-          const fetchedProjects = await getCompanyProjects(selectedCompany);
-          setProjects(fetchedProjects);
+          const projects = await getCompanyProjects(selectedCompanyId);
+          setProjects(projects);
         } catch (error) {
           console.error("Error fetching projects:", error);
         }
-      })();
+      };
+      fetchProjects();
     }
-  }, [selectedCompany]);
+  }, [selectedCompanyId]);
+
+  const handleCompanyChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCompanyId(event.target.value);
+  };
+
+  const handleProjectClick = (projectId: string) => {
+    router.push(`/company/projects/${projectId}`);
+  };
 
   return (
     <div>
-      <label htmlFor="companySelect">Select Company:</label>
-      <select
-        id="companySelect"
-        value={selectedCompany}
-        onChange={(e) => setSelectedCompany(e.target.value)}
-      >
-        {companies.map((company) => (
-          <option key={company.id} value={company.id}>
-            {company.name}
-          </option>
-        ))}
-      </select>
+      <div className="mb-4">
+        <label htmlFor="companySelect" className="block text-gray-700 text-sm font-bold mb-2">
+          Select Company
+        </label>
+        <select
+          id="companySelect"
+          value={selectedCompanyId}
+          onChange={handleCompanyChange}
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        >
+          {companies.map((company) => (
+            <option key={company.id} value={company.id}>
+              {company.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      <div>
-        <h2>Projects</h2>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold">Projects</h2>
         <ul>
           {projects.length > 0 ? (
             projects.map((project) => (
-              <li key={project.id}>{project.name}</li>
+              <li
+                key={project.id}
+                onClick={() => handleProjectClick(project.id)}
+                className="cursor-pointer text-blue-500 hover:underline"
+              >
+                {project.name}
+              </li>
             ))
           ) : (
-            <li>No projects available for this company.</li>
+            <li>No projects found for this company.</li>
           )}
         </ul>
       </div>
-
-      <ProjectForm companies={companies} userId={userId} />
     </div>
   );
 };
 
-export default ProjectPage;
+export default ProjectList;
