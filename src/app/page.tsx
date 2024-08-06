@@ -20,8 +20,8 @@ export default function Home() {
 
       <div className="relative mb-8">
         <Image
-          src="/next.svg"
-          alt="Next.js Logo"
+          src="/favicon2-removebg-preview.svg"
+          alt="Cool"
           width={180}
           height={37}
           priority

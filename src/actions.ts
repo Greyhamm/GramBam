@@ -9,7 +9,7 @@ import { sessionOptions, SessionData, defaultSession, User } from './lib';
 import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
-import { Company, CreateProjectParams
+import { Company, CreateProjectParams, Project
  } from "./lib";
 // Get session function to retrieve the current session
 export const getSession = async (): Promise<IronSession<SessionData>> => {
@@ -239,5 +239,43 @@ export const createProject = async ({
   } catch (error) {
     console.error('Error creating project:', error);
     throw new Error('Could not create the project.');
+  }
+};
+
+export const getCompanyProjects = async (companyId: string): Promise<Project[]> => {
+  try {
+    if (!companyId) {
+      throw new Error("Company ID is required.");
+    }
+
+    // Fetch projects associated with the company
+    const { rows } = await sql`
+      SELECT 
+        id, 
+        company_id, 
+        name, 
+        description, 
+        created_at, 
+        client, 
+        lead_user 
+      FROM projects 
+      WHERE company_id = ${companyId}
+    `;
+
+    // Map the results to the Project structure
+    const companyProjects: Project[] = rows.map(row => ({
+      id: row.id,
+      company_id: row.company_id,
+      name: row.name,
+      description: row.description,
+      created_at: row.created_at,
+      client: row.client,
+      lead_user: row.lead_user,
+    }));
+
+    return companyProjects;
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    throw new Error('Failed to fetch projects.');
   }
 };

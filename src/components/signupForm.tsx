@@ -13,65 +13,94 @@ const SignupForm = () => {
   };
 
   return (
-    <div className="w-full max-w-xs form-container">
-      <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" action={formAction}>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-            Username
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="username"
-            type="text"
-            name="username"
-            required
-            placeholder="Username"
-          />
+      <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-600 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
+        <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
+          <div className="max-w-md mx-auto">
+            <div>
+              <h1 className="text-2xl font-semibold mb-4 text-gray-900">Sign Up</h1>
+            </div>
+            <div className="divide-y divide-gray-200">
+              <div className="py-8 text-base leading-6 space-y-6 text-gray-700 sm:text-lg sm:leading-7">
+                <form action={formAction}>
+                  <div className="relative">
+                    <input
+                      autoComplete="off"
+                      id="username"
+                      name="username"
+                      type="text"
+                      className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:border-blue-600"
+                      placeholder="Username"
+                      required
+                    />
+                    <label
+                      htmlFor="username"
+                      className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
+                    >
+                      Username
+                    </label>
+                  </div>
+                  <div className="relative mt-6">
+                    <input
+                      autoComplete="off"
+                      id="email"
+                      name="email"
+                      type="email"
+                      className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:border-blue-600"
+                      placeholder="Email"
+                      required
+                    />
+                    <label
+                      htmlFor="email"
+                      className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
+                    >
+                      Email
+                    </label>
+                  </div>
+                  <div className="relative mt-6">
+                    <input
+                      autoComplete="off"
+                      id="password"
+                      name="password"
+                      type="password"
+                      className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:border-blue-600"
+                      placeholder="Password"
+                      required
+                    />
+                    <label
+                      htmlFor="password"
+                      className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
+                    >
+                      Password
+                    </label>
+                  </div>
+                  {state?.error && (
+                    <p className="text-red-500 text-xs italic mt-2">{state.error}</p>
+                  )}
+                  <div className="mt-6 flex justify-between">
+                    <button
+                      className="bg-blue-500 text-white rounded-md px-4 py-2"
+                      type="submit"
+                    >
+                      Sign Up
+                    </button>
+                    <button
+                      className="text-blue-500 hover:text-blue-800 font-bold"
+                      onClick={handleLoginRedirect}
+                      type="button"
+                    >
+                      Login
+                    </button>
+                  </div>
+                </form>
+              </div>
+              <p className="text-center text-gray-500 text-xs mt-6">
+                &copy;2024 Your Company. All rights reserved.
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-            Email
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="email"
-            type="email"
-            name="email"
-            required
-            placeholder="Email"
-          />
-        </div>
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-            Password
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-            id="password"
-            type="password"
-            name="password"
-            required
-            placeholder="Password"
-          />
-          {state?.error && <p className="text-red-500 text-xs italic">{state.error}</p>}
-        </div>
-        <div className="flex items-center justify-between">
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="submit"
-          >
-            Sign Up
-          </button>
-          <button
-            className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-            onClick={handleLoginRedirect}
-            type="button"
-          >
-            Login
-          </button>
-        </div>
-      </form>
-    </div>
+      </div>
   );
 };
 

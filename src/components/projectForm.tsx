@@ -1,8 +1,9 @@
-"use client"; // This directive marks the component as a Client Component
+// src/components/projectForm.tsx
+"use client"; 
 
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createProject } from "@/actions"; // Adjust this import based on your session handling
+import { createProject } from "@/actions"; 
 import { Company, ProjectFormProps } from "@/lib";
 
 const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
@@ -23,10 +24,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
 
     try {
-      // Call the createProject action
       const projectId = await createProject({
         companyId: project.companyId,
         name: project.name,
@@ -34,7 +34,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
         client: project.client,
       });
 
-      // Redirect to the newly created project page
       router.push(`/company/projects/${projectId}`);
     } catch (error) {
       console.error("Error creating project:", error);

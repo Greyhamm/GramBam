@@ -1,20 +1,28 @@
-import { getUserCompanies } from "@/actions";
-import ProjectForm from "@/components/projectForm"; // Adjust the import path if necessary
+// src/app/company/page.tsx
+
+import { getUserCompanies, getSession } from "@/actions";
 import { Company } from "@/lib";
-import { getSession } from "@/actions";
+import ProjectList from "@/components/projectList"; // Client Component
 
-const CompanyPage = async () => {
+export default async function CompanyPage() {
   try {
-    // Fetch user companies using the reusable function
-    const companies: Company[] = await getUserCompanies();
-
-    // You can also fetch session details if required directly
     const session = await getSession();
+
+    if (!session.isLoggedIn) {
+      return (
+        <div>
+          <h1>Welcome to the company page</h1>
+          <p>You must be logged in to view this page.</p>
+        </div>
+      );
+    }
+
+    const companies: Company[] = await getUserCompanies();
 
     return (
       <div className='company'>
         <h1>Welcome to the company page</h1>
-        <ProjectForm companies={companies} userId={session.user?.id} />
+        <ProjectList companies={companies} userId={session.user?.id} />
       </div>
     );
   } catch (error) {
@@ -26,6 +34,4 @@ const CompanyPage = async () => {
       </div>
     );
   }
-};
-
-export default CompanyPage;
+}

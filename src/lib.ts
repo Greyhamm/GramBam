@@ -51,3 +51,14 @@ export interface CreateProjectParams {
     description: string;
     client?: string;
   }
+
+
+export interface Project {
+    id: string;
+    company_id: string;
+    name: string;
+    description: string;
+    created_at: string; // or Date if you are converting it
+    client?: string;
+    lead_user?: string;
+  }
