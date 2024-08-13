@@ -1,7 +1,7 @@
 // src/components/projectsTable.tsx
 import React from 'react';
 import { Project, Company } from '@/lib';
-
+import Link from 'next/link';
 interface ProjectsTableProps {
   projects: Project[];
   companies: Company[];
@@ -32,7 +32,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, companies }) =>
             <tbody className="bg-white">
               {projects.map((project) => (
                 <tr key={project.id} className="w-full border-b py-3 text-sm last-of-type:border-none">
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">{project.name}</td>
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <Link href={`/company/projects/${project.id}`} className="text-blue-500 hover:underline">
+                      {project.name}
+                    </Link>
+                  </td>
                   <td className="whitespace-nowrap px-3 py-3">{project.description}</td>
                   <td className="whitespace-nowrap px-3 py-3">{project.client}</td>
                   <td className="whitespace-nowrap px-3 py-3">{new Date(project.created_at).toLocaleDateString()}</td>

@@ -280,7 +280,7 @@ export const getCompanyProjects = async (companyId: string): Promise<Project[]> 
   }
 };
 
-//Getting project details by id 
+//Getting project details by id
 export const getProjectById = async (projectId: string): Promise<Project | null> => {
   try {
     if (!projectId) {
@@ -289,15 +289,15 @@ export const getProjectById = async (projectId: string): Promise<Project | null>
 
     // Fetch the project with the specified ID
     const { rows } = await sql`
-      SELECT 
-        id, 
-        company_id, 
-        name, 
-        description, 
-        created_at, 
-        client, 
-        lead_user 
-      FROM projects 
+      SELECT
+        id,
+        company_id,
+        name,
+        description,
+        created_at,
+        client,
+        lead_user
+      FROM projects
       WHERE id = ${projectId}
     `;
 
