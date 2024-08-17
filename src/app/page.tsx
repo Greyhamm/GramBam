@@ -20,7 +20,7 @@ export default function Home() {
 
       <div className="relative mb-8">
         <Image
-          src="/favicon2-removebg-preview.svg"
+          src="/file.svg"
           alt="Cool"
           width={180}
           height={37}

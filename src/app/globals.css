@@ -10,9 +10,15 @@
 }
 
 body {
-  background-color: #131c2f;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
+  align-items: center; /* Center horizontally */
+  background: linear-gradient(to bottom right, #FFB347, #756844);
   color: #eee;
-  font-family: Arial, sans-serif; /* Use a simple, legible font */
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  margin: 0;
 }
 
 a {
@@ -21,13 +27,16 @@ a {
 }
 
 .container {
-  height: 500vh;
-  margin: auto;
+  margin: 0 auto;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: 24px;
+  min-height: 100vh;
 }
+
+
 
 nav {
   height: 150px;
