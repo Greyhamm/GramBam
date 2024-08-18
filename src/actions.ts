@@ -6,11 +6,10 @@ import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 import { cookies } from "next/headers";
 import { sessionOptions, SessionData, defaultSession, User } from './lib';
+import { Company, CreateProjectParams, Project, RecordData, Record} from "./lib";
 import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
-import { Company, CreateProjectParams, Project, RecordData, Record
- } from "./lib";
 // Get session function to retrieve the current session
 export const getSession = async (): Promise<IronSession<SessionData>> => {
   const session = await getIronSession<SessionData>(cookies(), sessionOptions);

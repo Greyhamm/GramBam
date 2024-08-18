@@ -5,6 +5,7 @@ import { Project, Record } from "@/lib";
 import { fetchProjectRecords } from "@/actions";
 import EditableProjectDetails from '@/components/editableProjectDetailsForm';
 import dynamic from 'next/dynamic';
+import { formatDateToLocal } from '@/app/lib/utils';
 
 const AddRecordForm = dynamic(() => import('@/components/addRecordForm'), { ssr: false });
 
@@ -28,7 +29,12 @@ export default function ProjectPageClient({ project, initialRecords }: ProjectPa
   const handleRecordAdded = async () => {
     try {
       const updatedRecords = await fetchProjectRecords(project.id);
-      setRecords(updatedRecords);
+      // Format dates for new records
+      const formattedRecords = updatedRecords.map(record => ({
+        ...record,
+        created_at: formatDateToLocal(record.created_at),
+      }));
+      setRecords(formattedRecords);
       setShowAddRecordForm(false);
     } catch (error) {
       console.error('Error refreshing records:', error);
@@ -57,7 +63,7 @@ export default function ProjectPageClient({ project, initialRecords }: ProjectPa
                     <div className="flex-1 space-y-1">
                       <h3 className="text-sm font-medium">{record.name}</h3>
                       <p className="text-sm text-gray-500">{record.description}</p>
-                      <p className="text-sm text-gray-500">Created At: {new Date(record.created_at).toLocaleDateString()}</p>
+                      <p className="text-sm text-gray-500">Created At: {record.created_at}</p>
                     </div>
                   </div>
                 </li>
