@@ -10,6 +10,7 @@ interface EditableProjectDetailsProps {
 
 const EditableProjectDetails: React.FC<EditableProjectDetailsProps> = ({ project: initialProject }) => {
   const [project, setProject] = useState<Project>(initialProject);
+  const [editingFields, setEditingFields] = useState<Partial<Project>>({});
   const [isEditing, setIsEditing] = useState({
     name: false,
     description: false,
@@ -19,15 +20,22 @@ const EditableProjectDetails: React.FC<EditableProjectDetailsProps> = ({ project
 
   const handleEdit = (field: keyof typeof isEditing) => {
     setIsEditing(prev => ({ ...prev, [field]: true }));
+    setEditingFields(prev => ({ ...prev, [field]: project[field] }));
     setError(null);
   };
 
-  const handleSave = async (field: keyof typeof isEditing) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditingFields(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleConfirm = async (field: keyof typeof isEditing) => {
     try {
-      const updatedFields: Partial<Project> = { [field]: project[field] };
+      const updatedFields: Partial<Project> = { [field]: editingFields[field] };
       const updatedProject = await updateProjectById(project.id, updatedFields);
       setProject(updatedProject);
       setIsEditing(prev => ({ ...prev, [field]: false }));
+      setEditingFields({});
       setError(null);
     } catch (error) {
       console.error('Error updating project:', error);
@@ -35,9 +43,62 @@ const EditableProjectDetails: React.FC<EditableProjectDetailsProps> = ({ project
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setProject(prev => ({ ...prev, [name]: value }));
+  const handleCancel = (field: keyof typeof isEditing) => {
+    setIsEditing(prev => ({ ...prev, [field]: false }));
+    setEditingFields(prev => ({ ...prev, [field]: undefined }));
+  };
+
+  const renderEditableField = (field: keyof typeof isEditing, label: string) => {
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">{label}</label>
+        {isEditing[field] ? (
+          <div>
+            {field === 'description' ? (
+              <textarea
+                name={field}
+                value={editingFields[field] as string || ''}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                rows={3}
+              />
+            ) : (
+              <input
+                type="text"
+                name={field}
+                value={editingFields[field] as string || ''}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              />
+            )}
+            <div className="mt-2">
+              <button
+                onClick={() => handleConfirm(field)}
+                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mr-2"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => handleCancel(field)}
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-between items-center mt-1">
+            <span>{project[field] || 'N/A'}</span>
+            <button
+              onClick={() => handleEdit(field)}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+            >
+              Edit
+            </button>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -49,101 +110,55 @@ const EditableProjectDetails: React.FC<EditableProjectDetailsProps> = ({ project
           </div>
         )}
         
-        <h1 className="text-3xl font-bold mb-4">
-          {isEditing.name ? (
-            <input
-              name="name"
-              value={project.name}
-              onChange={handleChange}
-              onBlur={() => handleSave('name')}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          ) : (
-            <>
-              {project.name}
-              <button onClick={() => handleEdit('name')} className="ml-2 text-sm bg-primary text-primary-foreground px-2 py-1 rounded-md hover:bg-primary/80">
-                Edit
-              </button>
-            </>
-          )}
-        </h1>
+        <h1 className="text-3xl font-bold mb-4">Project Details</h1>
         
-        <div className="bg-card text-card-foreground p-4 rounded-lg shadow-lg relative">
-          <h2 className="text-xl font-semibold mb-2">Project Description</h2>
-          {isEditing.description ? (
-            <textarea
-              name="description"
-              value={project.description}
-              onChange={handleChange}
-              onBlur={() => handleSave('description')}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          ) : (
-            <>
-              <p>{project.description}</p>
-              <button onClick={() => handleEdit('description')} className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded-md hover:bg-primary/80">
-                Edit
-              </button>
-            </>
-          )}
-        </div>
-
-        <div className="bg-card text-card-foreground p-4 rounded-lg shadow-lg mt-4 relative">
-          <h2 className="text-xl font-semibold mb-2">Project Details</h2>
-          <ul>
-            <li>
-              <strong>Client:</strong>{' '}
-              {isEditing.client ? (
-                <input
-                  name="client"
-                  value={project.client || ''}
-                  onChange={handleChange}
-                  onBlur={() => handleSave('client')}
-                  className="p-1 border border-gray-300 rounded-md"
-                />
-              ) : (
-                <>
-                  {project.client || 'N/A'}
-                  <button onClick={() => handleEdit('client')} className="ml-2 text-sm bg-primary text-primary-foreground px-2 py-1 rounded-md hover:bg-primary/80">
-                    Edit
-                  </button>
-                </>
-              )}
-            </li>
-            <li><strong>Created At:</strong> {new Date(project.created_at).toLocaleDateString()}</li>
-          </ul>
-        </div>
-
-        <div className="bg-card text-card-foreground p-4 rounded-lg shadow-lg mt-4 relative">
-          <h2 className="text-xl font-semibold mb-2">Project Team</h2>
-          <div className="grid grid-cols-3 gap-4">
-            {/* This would be dynamically filled with team members, if applicable */}
-            <div className="flex items-center">
-              <span>John Doe</span>
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="px-4 py-5 sm:px-6">
+            {renderEditableField('name', 'Project Name')}
+            {renderEditableField('description', 'Project Description')}
+            {renderEditableField('client', 'Client')}
+            
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700">Created At</label>
+              <span className="mt-1 block">
+                {new Date(project.created_at).toLocaleDateString()}
+              </span>
             </div>
-            {/* Repeat for other team members */}
           </div>
         </div>
 
-        <div className="bg-card text-card-foreground p-4 rounded-lg shadow-lg mt-4 relative">
-          <h2 className="text-xl font-semibold mb-2">Associated Records</h2>
-          <ul>
-            <li>
-              <strong>Name:</strong> Record 1
-              <ul>
-                <li><strong>Description:</strong> Lorem ipsum dolor sit amet</li>
-                <li><strong>Created At:</strong> 2021-10-15</li>
-                <li>
-                  <strong>Tasks:</strong>
-                  <ul>
-                    <li>Task 1 - Due Date: 2021-11-20</li>
-                    <li>Task 2 - Due Date: 2021-11-25</li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            {/* Repeat for other records */}
-          </ul>
+        <div className="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="px-4 py-5 sm:px-6">
+            <h2 className="text-lg leading-6 font-medium text-gray-900">Project Team</h2>
+            <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-3">
+              <div className="flex items-center">
+                <span>John Doe</span>
+              </div>
+              {/* Add more team members here */}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="px-4 py-5 sm:px-6">
+            <h2 className="text-lg leading-6 font-medium text-gray-900">Associated Records</h2>
+            <ul className="mt-2 divide-y divide-gray-200">
+              <li className="py-4">
+                <div className="flex space-x-3">
+                  <div className="flex-1 space-y-1">
+                    <h3 className="text-sm font-medium">Record 1</h3>
+                    <p className="text-sm text-gray-500">Lorem ipsum dolor sit amet</p>
+                    <p className="text-sm text-gray-500">Created At: 2021-10-15</p>
+                    <ul className="list-disc list-inside text-sm text-gray-500">
+                      <li>Task 1 - Due Date: 2021-11-20</li>
+                      <li>Task 2 - Due Date: 2021-11-25</li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+              {/* Add more records here */}
+            </ul>
+          </div>
         </div>
       </div>
     </div>
