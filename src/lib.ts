@@ -87,3 +87,14 @@ export interface RecordPageProps {
     recordId: string;
   };
 }
+
+export interface Task {
+  id: string;
+  record_id: string;
+  name: string;
+  description: string;
+  status: string;
+  assigned_to: string | null;
+  due_date: string | null;
+  created_at: string;
+}

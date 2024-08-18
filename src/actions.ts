@@ -6,7 +6,7 @@ import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 import { cookies } from "next/headers";
 import { sessionOptions, SessionData, defaultSession, User } from './lib';
-import { Company, CreateProjectParams, Project, RecordData, Record} from "./lib";
+import { Company, CreateProjectParams, Project, RecordData, Record, Task} from "./lib";
 import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
@@ -419,5 +419,44 @@ export async function getRecordById(recordId: string): Promise<Record | null> {
   } catch (error) {
     console.error('Error fetching record:', error);
     throw new Error('Failed to fetch record');
+  }
+}
+
+
+
+export async function createTask(recordId: string, taskData: Partial<Task>) {
+  const { name, description, status, assigned_to, due_date } = taskData;
+  const created_at = new Date().toISOString();
+
+  try {
+    console.log('Creating task with data:', { recordId, ...taskData, created_at });
+
+    const result = await sql`
+      INSERT INTO tasks (record_id, name, description, status, assigned_to, due_date, created_at)
+      VALUES (${recordId}, ${name}, ${description}, ${status || 'pending'}, ${assigned_to || null}, ${due_date || null}, ${created_at})
+      RETURNING id, record_id, name, description, status, assigned_to, due_date, created_at
+    `;
+
+    console.log('Task created successfully:', result.rows[0]);
+
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error creating task:', error);
+    throw new Error('Failed to create task');
+  }
+}
+export async function getTasksByRecordId(recordId: string): Promise<Task[]> {
+  try {
+    const result = await sql<Task>`
+      SELECT id, record_id, name, description, status, assigned_to, due_date, created_at
+      FROM tasks
+      WHERE record_id = ${recordId}
+      ORDER BY created_at DESC
+    `;
+
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching record tasks:', error);
+    throw new Error('Failed to fetch record tasks');
   }
 }

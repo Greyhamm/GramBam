@@ -1,23 +1,128 @@
 "use client";
-
-import React from 'react';
-import { Record } from "@/lib";
+import React, { useState, useEffect, useCallback } from 'react';
+import { Record, Task } from "@/lib";
 import Link from 'next/link';
 import { RecordPageClientProps } from '@/lib';
-
+import { createTask, getTasksByRecordId } from '@/actions';
 
 export default function RecordPageClient({ record, projectId }: RecordPageClientProps) {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [newTask, setNewTask] = useState({ name: '', description: '', status: 'pending', assigned_to: '', due_date: '' });
+
+  const fetchTasks = useCallback(async () => {
+    try {
+      const fetchedTasks = await getTasksByRecordId(record.id);
+      setTasks(fetchedTasks);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  }, [record.id]);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      console.log('Submitting task:', { recordId: record.id, ...newTask });
+      await createTask(record.id, newTask);
+      setNewTask({ name: '', description: '', status: 'pending', assigned_to: '', due_date: '' });
+      fetchTasks();
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
+  };
+  
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setNewTask({ ...newTask, [e.target.name]: e.target.value });
+  };
+
   return (
     <div className="bg-gradient-to-br from-orange-300 to-peach-300 text-primary-foreground min-h-screen">
       <div className="container mx-auto p-4 ">
         <Link href={`/company/projects/${projectId}`} className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
           &larr; Back to Project
         </Link>
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
           <div className="px-4 py-5 sm:px-6">
             <h1 className="text-2xl font-bold mb-4">{record.name}</h1>
             <p className="text-gray-600 mb-2">{record.description}</p>
             <p className="text-sm text-gray-500">Created At: {record.created_at}</p>
+          </div>
+        </div>
+
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+          <div className="px-4 py-5 sm:px-6">
+            <h2 className="text-xl font-bold mb-4">Create New Task</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="text"
+                name="name"
+                value={newTask.name}
+                onChange={handleInputChange}
+                placeholder="Task Name"
+                className="w-full p-2 border rounded"
+                required
+              />
+              <textarea
+                name="description"
+                value={newTask.description}
+                onChange={handleInputChange}
+                placeholder="Task Description"
+                className="w-full p-2 border rounded"
+              />
+              <select
+                name="status"
+                value={newTask.status}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+              >
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+              <input
+                type="text"
+                name="assigned_to"
+                value={newTask.assigned_to}
+                onChange={handleInputChange}
+                placeholder="Assigned To"
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="date"
+                name="due_date"
+                value={newTask.due_date}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+              />
+              <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                Create Task
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="px-4 py-5 sm:px-6">
+            <h2 className="text-xl font-bold mb-4">Tasks</h2>
+            {tasks.length > 0 ? (
+              <ul className="space-y-4">
+                {tasks.map((task) => (
+                  <li key={task.id} className="border-b pb-2">
+                    <h3 className="font-semibold">{task.name}</h3>
+                    <p className="text-gray-600">{task.description}</p>
+                    <p className="text-sm text-gray-500">Status: {task.status}</p>
+                    <p className="text-sm text-gray-500">Assigned to: {task.assigned_to}</p>
+                    <p className="text-sm text-gray-500">Due date: {task.due_date}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No tasks yet.</p>
+            )}
           </div>
         </div>
       </div>
