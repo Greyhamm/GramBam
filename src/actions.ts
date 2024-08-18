@@ -283,11 +283,10 @@ export const getCompanyProjects = async (companyId: string): Promise<Project[]> 
 //Getting project details by id
 export const getProjectById = async (projectId: string): Promise<Project | null> => {
   try {
-    if (!projectId) {
+    if (!projectId || projectId.trim() === "") {
       throw new Error("Project ID is required.");
     }
 
-    // Fetch the project with the specified ID
     const { rows } = await sql`
       SELECT
         id,
@@ -301,12 +300,10 @@ export const getProjectById = async (projectId: string): Promise<Project | null>
       WHERE id = ${projectId}
     `;
 
-    // If no project is found, return null
     if (rows.length === 0) {
       return null;
     }
 
-    // Map the result to the Project structure
     const project: Project = {
       id: rows[0].id,
       company_id: rows[0].company_id,
@@ -325,3 +322,45 @@ export const getProjectById = async (projectId: string): Promise<Project | null>
 };
 
 
+export const updateProjectById = async (projectId: string, updatedFields: Partial<Project>): Promise<Project> => {
+  try {
+    const updateFields = Object.entries(updatedFields)
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, _], index) => `${key} = $${index + 2}`)
+      .join(', ');
+
+    if (!updateFields) {
+      throw new Error('No valid fields to update');
+    }
+
+    const query = `
+      UPDATE projects
+      SET ${updateFields}
+      WHERE id = $1
+      RETURNING *
+    `;
+
+    const values = [projectId, ...Object.values(updatedFields).filter(value => value !== undefined)];
+
+    const result = await sql.query(query, values);
+
+    if (result.rows.length === 0) {
+      throw new Error("Project not found or update failed.");
+    }
+
+    const updatedProject: Project = {
+      id: result.rows[0].id,
+      company_id: result.rows[0].company_id,
+      name: result.rows[0].name,
+      description: result.rows[0].description,
+      created_at: result.rows[0].created_at,
+      client: result.rows[0].client,
+      lead_user: result.rows[0].lead_user,
+    };
+
+    return updatedProject;
+  } catch (error) {
+    console.error('Error updating project:', error);
+    throw new Error('Failed to update the project.');
+  }
+};
