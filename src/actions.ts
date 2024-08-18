@@ -402,7 +402,6 @@ export async function fetchProjectRecords(projectId: string): Promise<Record[]> 
   }
 }
 
-
 export async function getRecordById(recordId: string): Promise<Record | null> {
   try {
     const result = await sql<Record>`
@@ -415,7 +414,12 @@ export async function getRecordById(recordId: string): Promise<Record | null> {
       return null;
     }
 
-    return result.rows[0];
+    // Format the date to a string before returning
+    const record = result.rows[0];
+    return {
+      ...record,
+      created_at: new Date(record.created_at).toISOString()
+    };
   } catch (error) {
     console.error('Error fetching record:', error);
     throw new Error('Failed to fetch record');
@@ -499,5 +503,37 @@ export async function getCompanyUsers(companyId: string): Promise<CompanyUser[]>
   } catch (error) {
     console.error('Error fetching company users:', error);
     throw new Error('Failed to fetch company users');
+  }
+}
+export async function updateRecord(recordId: string, updatedFields: Partial<Record>): Promise<Record> {
+  try {
+    const updateFields = Object.entries(updatedFields)
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, _], index) => `${key} = $${index + 2}`)
+      .join(', ');
+
+    if (!updateFields) {
+      throw new Error('No valid fields to update');
+    }
+
+    const query = `
+      UPDATE records
+      SET ${updateFields}
+      WHERE id = $1
+      RETURNING id, project_id, name, description, created_at
+    `;
+
+    const values = [recordId, ...Object.values(updatedFields).filter(value => value !== undefined)];
+
+    const result = await sql.query(query, values);
+
+    if (result.rows.length === 0) {
+      throw new Error("Record not found or update failed.");
+    }
+
+    return result.rows[0] as Record;
+  } catch (error) {
+    console.error('Error updating record:', error);
+    throw new Error('Failed to update the record.');
   }
 }

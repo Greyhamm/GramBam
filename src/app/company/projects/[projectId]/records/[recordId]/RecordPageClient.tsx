@@ -1,16 +1,25 @@
-"use client";
+'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Record, Task, Project, CompanyUser } from "@/lib";
 import Link from 'next/link';
 import { RecordPageClientProps } from '@/lib';
-import { createTask, getTasksByRecordId, updateTask, getCompanyUsers, getProjectById } from '@/actions';
+import { createTask, getTasksByRecordId, updateTask, getCompanyUsers, getProjectById, updateRecord } from '@/actions';
 import EditableTaskModal from '@/components/editableTaskModal';
 import CreateTaskFormModal from '@/components/createTaskModal';
+import EditRecordFormModal from '@/components/editRecordFormModal';
+import { formatDateToLocal } from '../../../../../lib/utils';
 
-export default function RecordPageClient({ record, projectId }: RecordPageClientProps) {
+
+
+export default function RecordPageClient({ record: initialRecord, projectId }: RecordPageClientProps) {
+  const [record, setRecord] = useState<Record>({
+    ...initialRecord,
+    created_at: formatDateToLocal(initialRecord.created_at)
+  });
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditRecordModalOpen, setIsEditRecordModalOpen] = useState(false);
   const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
   const [project, setProject] = useState<Project | null>(null);
 
@@ -28,18 +37,11 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
     
     const fetchProjectAndUsers = async () => {
       try {
-        console.log('Fetching project details for project ID:', projectId);
         const projectDetails = await getProjectById(projectId);
-        console.log('Fetched project details:', projectDetails);
-
         if (projectDetails) {
           setProject(projectDetails);
-          console.log('Fetching users for company ID:', projectDetails.company_id);
           const users = await getCompanyUsers(projectDetails.company_id);
-          console.log('Fetched company users:', users);
           setCompanyUsers(users);
-        } else {
-          console.error('Project details not found');
         }
       } catch (error) {
         console.error('Error fetching project details or company users:', error);
@@ -48,7 +50,6 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
     
     fetchProjectAndUsers();
   }, [fetchTasks, projectId]);
-
 
   const handleCreateTask = async (newTask: Omit<Task, 'id' | 'record_id' | 'created_at'>) => {
     try {
@@ -70,6 +71,23 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
       fetchTasks();
     } catch (error) {
       console.error('Error updating task:', error);
+    }
+  };
+
+  const handleEditRecord = () => {
+    setIsEditRecordModalOpen(true);
+  };
+
+  const handleSaveRecord = async (updatedRecord: Partial<Record>) => {
+    try {
+      const updated = await updateRecord(record.id, updatedRecord);
+      setRecord({
+        ...updated,
+        created_at: formatDateToLocal(updated.created_at)
+      });
+      setIsEditRecordModalOpen(false);
+    } catch (error) {
+      console.error('Error updating record:', error);
     }
   };
 
@@ -96,7 +114,15 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
         </Link>
         <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
           <div className="px-4 py-5 sm:px-6">
-            <h1 className="text-2xl font-bold mb-4">{record.name}</h1>
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-bold">{record.name}</h1>
+              <button 
+                onClick={handleEditRecord}
+                className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+              >
+                Edit Record
+              </button>
+            </div>
             <p className="text-gray-600 mb-2">{record.description}</p>
             <p className="text-sm text-gray-500">Created At: {record.created_at}</p>
           </div>
@@ -123,11 +149,20 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
             companyUsers={companyUsers}
           />
         )}
+
         {isCreateModalOpen && (
           <CreateTaskFormModal
             onClose={() => setIsCreateModalOpen(false)}
             onSave={handleCreateTask}
             companyUsers={companyUsers}
+          />
+        )}
+
+        {isEditRecordModalOpen && (
+          <EditRecordFormModal
+            record={record}
+            onClose={() => setIsEditRecordModalOpen(false)}
+            onSave={handleSaveRecord}
           />
         )}
       </div>

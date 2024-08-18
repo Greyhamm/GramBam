@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Task, CompanyUser } from '@/lib';
 
 interface CreateTaskFormModalProps {
@@ -15,6 +15,10 @@ const CreateTaskFormModal: React.FC<CreateTaskFormModalProps> = ({ onClose, onSa
     assigned_to: '', 
     due_date: ''
   });
+
+  useEffect(() => {
+    console.log('Company users in CreateTaskFormModal:', companyUsers);
+  }, [companyUsers]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setNewTask({ ...newTask, [e.target.name]: e.target.value });
