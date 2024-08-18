@@ -4,12 +4,11 @@ import { Record, Task, Project, CompanyUser } from "@/lib";
 import Link from 'next/link';
 import { RecordPageClientProps } from '@/lib';
 import { createTask, getTasksByRecordId, updateTask, getCompanyUsers, getProjectById, updateRecord } from '@/actions';
-import EditableTaskModal from '@/components/editableTaskModal';
+import ViewTaskModal from '@/components/viewTaskModal';
+import EditTaskModal from '@/components/editTaskModal';
 import CreateTaskFormModal from '@/components/createTaskModal';
 import EditRecordFormModal from '@/components/editRecordFormModal';
 import { formatDateToLocal } from '../../../../../lib/utils';
-
-
 
 export default function RecordPageClient({ record: initialRecord, projectId }: RecordPageClientProps) {
   const [record, setRecord] = useState<Record>({
@@ -17,11 +16,13 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
     created_at: formatDateToLocal(initialRecord.created_at)
   });
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [viewingTask, setViewingTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditRecordModalOpen, setIsEditRecordModalOpen] = useState(false);
   const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
   const [project, setProject] = useState<Project | null>(null);
+
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -61,18 +62,25 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
     }
   };
 
+  const handleViewTask = (task: Task) => {
+    setViewingTask(task);
+  };
+
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
+    setViewingTask(null);
   };
 
   const handleSaveTask = async (updatedTask: Task) => {
     try {
       await updateTask(updatedTask);
       fetchTasks();
+      setEditingTask(null);
     } catch (error) {
       console.error('Error updating task:', error);
     }
   };
+
 
   const handleEditRecord = () => {
     setIsEditRecordModalOpen(true);
@@ -97,7 +105,7 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
       <div className="bg-gray-100 p-4 rounded-lg">
         <h3 className="text-lg font-semibold mb-2">{status.charAt(0).toUpperCase() + status.slice(1)}</h3>
         {filteredTasks.map(task => (
-          <div key={task.id} className="bg-white p-2 mb-2 rounded cursor-pointer" onClick={() => handleEditTask(task)}>
+          <div key={task.id} className="bg-white p-2 mb-2 rounded cursor-pointer" onClick={() => handleViewTask(task)}>
             <h4 className="font-semibold">{task.name}</h4>
             <p className="text-sm text-gray-600">{task.description}</p>
           </div>
@@ -105,6 +113,7 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
       </div>
     );
   };
+
 
   return (
     <div className="bg-gradient-to-br from-orange-300 to-peach-300 text-primary-foreground min-h-screen">
@@ -141,14 +150,24 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
           {renderTaskColumn('completed')}
         </div>
 
-        {editingTask && (
-          <EditableTaskModal
-            task={editingTask}
-            onClose={() => setEditingTask(null)}
-            onSave={handleSaveTask}
-            companyUsers={companyUsers}
-          />
-        )}
+        {viewingTask && (
+        <ViewTaskModal
+          task={viewingTask}
+          onClose={() => setViewingTask(null)}
+          onEdit={() => handleEditTask(viewingTask)}
+          companyUsers={companyUsers}
+        />
+      )}
+
+      {editingTask && (
+        <EditTaskModal
+          task={editingTask}
+          onClose={() => setEditingTask(null)}
+          onSave={handleSaveTask}
+          companyUsers={companyUsers}
+        />
+      )}
+
 
         {isCreateModalOpen && (
           <CreateTaskFormModal
