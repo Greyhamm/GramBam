@@ -75,3 +75,15 @@ export interface Record {
   description: string;
   created_at: string;
 }
+
+export interface RecordPageClientProps {
+  record: Record;
+  projectId: string;
+}
+
+export interface RecordPageProps {
+  params: {
+    projectId: string;
+    recordId: string;
+  };
+}

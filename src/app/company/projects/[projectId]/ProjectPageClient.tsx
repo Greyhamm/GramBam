@@ -1,11 +1,11 @@
-"use client";
-
+'use client';
 import React, { useState } from 'react';
 import { Project, Record } from "@/lib";
 import { fetchProjectRecords } from "@/actions";
 import EditableProjectDetails from '@/components/editableProjectDetailsForm';
 import dynamic from 'next/dynamic';
-import { formatDateToLocal } from '@/app/lib/utils';
+import { formatDateToLocal } from '../../../lib/utils';
+import Link from 'next/link';
 
 const AddRecordForm = dynamic(() => import('@/components/addRecordForm'), { ssr: false });
 
@@ -29,7 +29,6 @@ export default function ProjectPageClient({ project, initialRecords }: ProjectPa
   const handleRecordAdded = async () => {
     try {
       const updatedRecords = await fetchProjectRecords(project.id);
-      // Format dates for new records
       const formattedRecords = updatedRecords.map(record => ({
         ...record,
         created_at: formatDateToLocal(record.created_at),
@@ -38,7 +37,6 @@ export default function ProjectPageClient({ project, initialRecords }: ProjectPa
       setShowAddRecordForm(false);
     } catch (error) {
       console.error('Error refreshing records:', error);
-      // You might want to show an error message to the user here
     }
   };
 
@@ -46,7 +44,6 @@ export default function ProjectPageClient({ project, initialRecords }: ProjectPa
     <div className="bg-gradient-to-br from-orange-300 to-peach-300 text-primary-foreground min-h-screen">
       <div className="container mx-auto p-4">
         <EditableProjectDetails project={project} />
-        
         <div className="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
             <h2 className="text-lg leading-6 font-medium text-gray-900">Associated Records</h2>
@@ -59,19 +56,20 @@ export default function ProjectPageClient({ project, initialRecords }: ProjectPa
             <ul className="mt-2 divide-y divide-gray-200">
               {records.map((record) => (
                 <li key={record.id} className="py-4">
-                  <div className="flex space-x-3">
-                    <div className="flex-1 space-y-1">
-                      <h3 className="text-sm font-medium">{record.name}</h3>
-                      <p className="text-sm text-gray-500">{record.description}</p>
-                      <p className="text-sm text-gray-500">Created At: {record.created_at}</p>
+                  <Link href={`/company/projects/${project.id}/records/${record.id}`} className="block hover:bg-gray-50">
+                    <div className="flex space-x-3">
+                      <div className="flex-1 space-y-1">
+                        <h3 className="text-sm font-medium">{record.name}</h3>
+                        <p className="text-sm text-gray-500">{record.description}</p>
+                        <p className="text-sm text-gray-500">Created At: {record.created_at}</p>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
         </div>
-
         {showAddRecordForm && (
           <AddRecordForm
             projectId={project.id}

@@ -10,6 +10,7 @@ import { Company, CreateProjectParams, Project, RecordData, Record} from "./lib"
 import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
+import { RecordPageClientProps } from "./lib";
 // Get session function to retrieve the current session
 export const getSession = async (): Promise<IronSession<SessionData>> => {
   const session = await getIronSession<SessionData>(cookies(), sessionOptions);
@@ -398,5 +399,25 @@ export async function fetchProjectRecords(projectId: string): Promise<Record[]> 
   } catch (error) {
     console.error('Error fetching project records:', error);
     throw new Error('Failed to fetch project records');
+  }
+}
+
+
+export async function getRecordById(recordId: string): Promise<Record | null> {
+  try {
+    const result = await sql<Record>`
+      SELECT id, project_id, name, description, created_at
+      FROM records
+      WHERE id = ${recordId}
+    `;
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error fetching record:', error);
+    throw new Error('Failed to fetch record');
   }
 }

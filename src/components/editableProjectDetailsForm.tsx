@@ -138,28 +138,6 @@ const EditableProjectDetails: React.FC<EditableProjectDetailsProps> = ({ project
             </div>
           </div>
         </div>
-
-        <div className="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-lg leading-6 font-medium text-gray-900">Associated Records</h2>
-            <ul className="mt-2 divide-y divide-gray-200">
-              <li className="py-4">
-                <div className="flex space-x-3">
-                  <div className="flex-1 space-y-1">
-                    <h3 className="text-sm font-medium">Record 1</h3>
-                    <p className="text-sm text-gray-500">Lorem ipsum dolor sit amet</p>
-                    <p className="text-sm text-gray-500">Created At: 2021-10-15</p>
-                    <ul className="list-disc list-inside text-sm text-gray-500">
-                      <li>Task 1 - Due Date: 2021-11-20</li>
-                      <li>Task 2 - Due Date: 2021-11-25</li>
-                    </ul>
-                  </div>
-                </div>
-              </li>
-              {/* Add more records here */}
-            </ul>
-          </div>
-        </div>
       </div>
     </div>
   );
