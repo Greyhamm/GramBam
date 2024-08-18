@@ -1,15 +1,18 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
-import { Record, Task } from "@/lib";
+import { Record, Task, Project, CompanyUser } from "@/lib";
 import Link from 'next/link';
 import { RecordPageClientProps } from '@/lib';
-import { createTask, getTasksByRecordId, updateTask } from '@/actions';
+import { createTask, getTasksByRecordId, updateTask, getCompanyUsers, getProjectById } from '@/actions';
 import EditableTaskModal from '@/components/editableTaskModal';
+import CreateTaskFormModal from '@/components/createTaskModal';
 
 export default function RecordPageClient({ record, projectId }: RecordPageClientProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [newTask, setNewTask] = useState({ name: '', description: '', status: 'pending', assigned_to: '', due_date: '' });
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
+  const [project, setProject] = useState<Project | null>(null);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -22,21 +25,39 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
 
   useEffect(() => {
     fetchTasks();
-  }, [fetchTasks]);
+    
+    const fetchProjectAndUsers = async () => {
+      try {
+        console.log('Fetching project details for project ID:', projectId);
+        const projectDetails = await getProjectById(projectId);
+        console.log('Fetched project details:', projectDetails);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+        if (projectDetails) {
+          setProject(projectDetails);
+          console.log('Fetching users for company ID:', projectDetails.company_id);
+          const users = await getCompanyUsers(projectDetails.company_id);
+          console.log('Fetched company users:', users);
+          setCompanyUsers(users);
+        } else {
+          console.error('Project details not found');
+        }
+      } catch (error) {
+        console.error('Error fetching project details or company users:', error);
+      }
+    };
+    
+    fetchProjectAndUsers();
+  }, [fetchTasks, projectId]);
+
+
+  const handleCreateTask = async (newTask: Omit<Task, 'id' | 'record_id' | 'created_at'>) => {
     try {
       await createTask(record.id, newTask);
-      setNewTask({ name: '', description: '', status: 'pending', assigned_to: '', due_date: '' });
       fetchTasks();
+      setIsCreateModalOpen(false);
     } catch (error) {
       console.error('Error creating task:', error);
     }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setNewTask({ ...newTask, [e.target.name]: e.target.value });
   };
 
   const handleEditTask = (task: Task) => {
@@ -81,57 +102,12 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
           </div>
         </div>
 
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-          <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-xl font-bold mb-4">Create New Task</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                name="name"
-                value={newTask.name}
-                onChange={handleInputChange}
-                placeholder="Task Name"
-                className="w-full p-2 border rounded"
-                required
-              />
-              <textarea
-                name="description"
-                value={newTask.description}
-                onChange={handleInputChange}
-                placeholder="Task Description"
-                className="w-full p-2 border rounded"
-              />
-              <select
-                name="status"
-                value={newTask.status}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-              >
-                <option value="pending">Pending</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-              <input
-                type="text"
-                name="assigned_to"
-                value={newTask.assigned_to}
-                onChange={handleInputChange}
-                placeholder="Assigned To"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="date"
-                name="due_date"
-                value={newTask.due_date}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-              />
-              <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                Create Task
-              </button>
-            </form>
-          </div>
-        </div>
+        <button 
+          onClick={() => setIsCreateModalOpen(true)} 
+          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mb-6"
+        >
+          Create New Task
+        </button>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {renderTaskColumn('pending')}
@@ -144,6 +120,14 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
             task={editingTask}
             onClose={() => setEditingTask(null)}
             onSave={handleSaveTask}
+            companyUsers={companyUsers}
+          />
+        )}
+        {isCreateModalOpen && (
+          <CreateTaskFormModal
+            onClose={() => setIsCreateModalOpen(false)}
+            onSave={handleCreateTask}
+            companyUsers={companyUsers}
           />
         )}
       </div>

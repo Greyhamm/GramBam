@@ -93,8 +93,13 @@ export interface Task {
   record_id: string;
   name: string;
   description: string;
-  status: string;
-  assigned_to: string | null;
-  due_date: string | null;
+  status: 'pending' | 'in_progress' | 'completed';
+  assigned_to: string;
+  due_date: string;
   created_at: string;
+}
+
+export interface CompanyUser {
+  id: string;
+  username: string;
 }

@@ -6,7 +6,7 @@ import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 import { cookies } from "next/headers";
 import { sessionOptions, SessionData, defaultSession, User } from './lib';
-import { Company, CreateProjectParams, Project, RecordData, Record, Task} from "./lib";
+import { Company, CreateProjectParams, Project, RecordData, Record, Task, CompanyUser} from "./lib";
 import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
@@ -423,7 +423,6 @@ export async function getRecordById(recordId: string): Promise<Record | null> {
 }
 
 
-
 export async function createTask(recordId: string, taskData: Partial<Task>) {
   const { name, description, status, assigned_to, due_date } = taskData;
   const created_at = new Date().toISOString();
@@ -445,6 +444,7 @@ export async function createTask(recordId: string, taskData: Partial<Task>) {
     throw new Error('Failed to create task');
   }
 }
+
 export async function getTasksByRecordId(recordId: string): Promise<Task[]> {
   try {
     const result = await sql<Task>`
@@ -478,5 +478,26 @@ export async function updateTask(task: Task) {
   } catch (error) {
     console.error('Error updating task:', error);
     throw new Error('Failed to update task');
+  }
+}
+
+
+export async function getCompanyUsers(companyId: string): Promise<CompanyUser[]> {
+  try {
+    console.log('Fetching users for company ID:', companyId);
+
+    const result = await sql<CompanyUser>`
+      SELECT u.id, u.username
+      FROM userz u
+      JOIN user_roles ur ON u.id = ur.user_id
+      WHERE ur.company_id = ${companyId}
+    `;
+
+    console.log('Fetched company users:', result.rows);
+
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching company users:', error);
+    throw new Error('Failed to fetch company users');
   }
 }

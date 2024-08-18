@@ -1,35 +1,40 @@
 import React, { useState } from 'react';
 import { Task, CompanyUser } from '@/lib';
 
-interface EditableTaskModalProps {
-  task: Task;
+interface CreateTaskFormModalProps {
   onClose: () => void;
-  onSave: (updatedTask: Task) => void;
+  onSave: (newTask: Omit<Task, 'id' | 'record_id' | 'created_at'>) => void;
   companyUsers: CompanyUser[];
 }
 
-const EditableTaskModal: React.FC<EditableTaskModalProps> = ({ task, onClose, onSave, companyUsers }) => {
-  const [editedTask, setEditedTask] = useState<Task>(task);
+const CreateTaskFormModal: React.FC<CreateTaskFormModalProps> = ({ onClose, onSave, companyUsers }) => {
+  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'record_id' | 'created_at'>>({ 
+    name: '', 
+    description: '', 
+    status: 'pending', 
+    assigned_to: '', 
+    due_date: ''
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setEditedTask({ ...editedTask, [e.target.name]: e.target.value });
+    setNewTask({ ...newTask, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(editedTask);
+    onSave(newTask);
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Edit Task</h2>
+        <h2 className="text-xl font-bold mb-4">Create New Task</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             name="name"
-            value={editedTask.name}
+            value={newTask.name}
             onChange={handleInputChange}
             placeholder="Task Name"
             className="w-full p-2 border rounded"
@@ -37,14 +42,14 @@ const EditableTaskModal: React.FC<EditableTaskModalProps> = ({ task, onClose, on
           />
           <textarea
             name="description"
-            value={editedTask.description}
+            value={newTask.description}
             onChange={handleInputChange}
             placeholder="Task Description"
             className="w-full p-2 border rounded"
           />
           <select
             name="status"
-            value={editedTask.status}
+            value={newTask.status}
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
           >
@@ -54,7 +59,7 @@ const EditableTaskModal: React.FC<EditableTaskModalProps> = ({ task, onClose, on
           </select>
           <select
             name="assigned_to"
-            value={editedTask.assigned_to}
+            value={newTask.assigned_to}
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
           >
@@ -66,7 +71,7 @@ const EditableTaskModal: React.FC<EditableTaskModalProps> = ({ task, onClose, on
           <input
             type="date"
             name="due_date"
-            value={editedTask.due_date}
+            value={newTask.due_date}
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
           />
@@ -75,7 +80,7 @@ const EditableTaskModal: React.FC<EditableTaskModalProps> = ({ task, onClose, on
               Cancel
             </button>
             <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-              Save Changes
+              Create Task
             </button>
           </div>
         </form>
@@ -84,4 +89,4 @@ const EditableTaskModal: React.FC<EditableTaskModalProps> = ({ task, onClose, on
   );
 };
 
-export default EditableTaskModal;
+export default CreateTaskFormModal;
