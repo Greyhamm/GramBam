@@ -3,11 +3,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Record, Task } from "@/lib";
 import Link from 'next/link';
 import { RecordPageClientProps } from '@/lib';
-import { createTask, getTasksByRecordId } from '@/actions';
+import { createTask, getTasksByRecordId, updateTask } from '@/actions';
+import EditableTaskModal from '@/components/editableTaskModal';
 
 export default function RecordPageClient({ record, projectId }: RecordPageClientProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState({ name: '', description: '', status: 'pending', assigned_to: '', due_date: '' });
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -25,7 +27,6 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      console.log('Submitting task:', { recordId: record.id, ...newTask });
       await createTask(record.id, newTask);
       setNewTask({ name: '', description: '', status: 'pending', assigned_to: '', due_date: '' });
       fetchTasks();
@@ -33,15 +34,42 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
       console.error('Error creating task:', error);
     }
   };
-  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setNewTask({ ...newTask, [e.target.name]: e.target.value });
   };
 
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+  };
+
+  const handleSaveTask = async (updatedTask: Task) => {
+    try {
+      await updateTask(updatedTask);
+      fetchTasks();
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
+
+  const renderTaskColumn = (status: string) => {
+    const filteredTasks = tasks.filter(task => task.status === status);
+    return (
+      <div className="bg-gray-100 p-4 rounded-lg">
+        <h3 className="text-lg font-semibold mb-2">{status.charAt(0).toUpperCase() + status.slice(1)}</h3>
+        {filteredTasks.map(task => (
+          <div key={task.id} className="bg-white p-2 mb-2 rounded cursor-pointer" onClick={() => handleEditTask(task)}>
+            <h4 className="font-semibold">{task.name}</h4>
+            <p className="text-sm text-gray-600">{task.description}</p>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="bg-gradient-to-br from-orange-300 to-peach-300 text-primary-foreground min-h-screen">
-      <div className="container mx-auto p-4 ">
+      <div className="container mx-auto p-4">
         <Link href={`/company/projects/${projectId}`} className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
           &larr; Back to Project
         </Link>
@@ -105,26 +133,19 @@ export default function RecordPageClient({ record, projectId }: RecordPageClient
           </div>
         </div>
 
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-xl font-bold mb-4">Tasks</h2>
-            {tasks.length > 0 ? (
-              <ul className="space-y-4">
-                {tasks.map((task) => (
-                  <li key={task.id} className="border-b pb-2">
-                    <h3 className="font-semibold">{task.name}</h3>
-                    <p className="text-gray-600">{task.description}</p>
-                    <p className="text-sm text-gray-500">Status: {task.status}</p>
-                    <p className="text-sm text-gray-500">Assigned to: {task.assigned_to}</p>
-                    <p className="text-sm text-gray-500">Due date: {task.due_date}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No tasks yet.</p>
-            )}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {renderTaskColumn('pending')}
+          {renderTaskColumn('in_progress')}
+          {renderTaskColumn('completed')}
         </div>
+
+        {editingTask && (
+          <EditableTaskModal
+            task={editingTask}
+            onClose={() => setEditingTask(null)}
+            onSave={handleSaveTask}
+          />
+        )}
       </div>
     </div>
   );

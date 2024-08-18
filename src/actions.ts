@@ -460,3 +460,23 @@ export async function getTasksByRecordId(recordId: string): Promise<Task[]> {
     throw new Error('Failed to fetch record tasks');
   }
 }
+
+export async function updateTask(task: Task) {
+  try {
+    const result = await sql`
+      UPDATE tasks
+      SET name = ${task.name},
+          description = ${task.description},
+          status = ${task.status},
+          assigned_to = ${task.assigned_to},
+          due_date = ${task.due_date}
+      WHERE id = ${task.id}
+      RETURNING *
+    `;
+
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error updating task:', error);
+    throw new Error('Failed to update task');
+  }
+}
