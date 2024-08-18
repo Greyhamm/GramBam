@@ -9,7 +9,7 @@ import { sessionOptions, SessionData, defaultSession, User } from './lib';
 import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
-import { Company, CreateProjectParams, Project
+import { Company, CreateProjectParams, Project, RecordData, Record
  } from "./lib";
 // Get session function to retrieve the current session
 export const getSession = async (): Promise<IronSession<SessionData>> => {
@@ -364,3 +364,40 @@ export const updateProjectById = async (projectId: string, updatedFields: Partia
     throw new Error('Failed to update the project.');
   }
 };
+
+
+export async function createRecord(projectId: string, recordData: RecordData) {
+  const { name, description } = recordData;
+  const created_at = new Date().toISOString();
+
+  try {
+    const result = await sql`
+      INSERT INTO records (project_id, name, description, created_at)
+      VALUES (${projectId}, ${name}, ${description}, ${created_at})
+      RETURNING id, project_id, name, description, created_at
+    `;
+
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error creating record:', error);
+    throw new Error('Failed to create record');
+  }
+}
+
+
+
+export async function fetchProjectRecords(projectId: string): Promise<Record[]> {
+  try {
+    const result = await sql<Record>`
+      SELECT id, project_id, name, description, created_at
+      FROM records
+      WHERE project_id = ${projectId}
+      ORDER BY created_at DESC
+    `;
+
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching project records:', error);
+    throw new Error('Failed to fetch project records');
+  }
+}

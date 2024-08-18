@@ -63,5 +63,15 @@ export interface Project {
     lead_user?: string;
   }
 
+export interface RecordData {
+    name: string;
+    description: string;
+  }
 
-  
+export interface Record {
+  id: string;
+  project_id: string;
+  name: string;
+  description: string;
+  created_at: string;
+}
