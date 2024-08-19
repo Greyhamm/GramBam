@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from 'react';
 import { createRecord } from '@/actions';
 
@@ -17,7 +16,6 @@ const AddRecordForm: React.FC<AddRecordFormProps> = ({ projectId, onClose, onRec
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     try {
       await createRecord(projectId, { name, description });
       onRecordAdded();
@@ -29,45 +27,52 @@ const AddRecordForm: React.FC<AddRecordFormProps> = ({ projectId, onClose, onRec
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal">
-      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div className="mt-3 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">Add New Record</h3>
-          <form className="mt-2 px-7 py-3" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              placeholder="Record Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-2 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1"
-              required
-            />
-            <textarea
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="mt-2 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1"
-              required
-            />
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            <div className="items-center px-4 py-3">
+    <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center" id="my-modal">
+      <div className="relative p-8 w-full max-w-md m-auto bg-blue-800 rounded-lg shadow-lg">
+        <div className="mt-3">
+          <h3 className="text-lg leading-6 font-medium text-white mb-4">Add New Record</h3>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-blue-200 mb-1">Record Name</label>
+              <input
+                id="name"
+                type="text"
+                placeholder="Enter record name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-blue-200 mb-1">Description</label>
+              <textarea
+                id="description"
+                placeholder="Enter description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+                rows={4}
+                required
+              />
+            </div>
+            {error && <p className="text-red-400 text-sm">{error}</p>}
+            <div className="flex justify-end space-x-2">
               <button
-                id="ok-btn"
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
                 type="submit"
-                className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-colors duration-200"
               >
                 Add Record
               </button>
             </div>
           </form>
-          <div className="items-center px-4 py-3">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300"
-            >
-              Cancel
-            </button>
-          </div>
         </div>
       </div>
     </div>

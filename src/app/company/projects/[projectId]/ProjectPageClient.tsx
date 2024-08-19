@@ -41,41 +41,45 @@ export default function ProjectPageClient({ project, initialRecords }: ProjectPa
   };
 
   return (
-    <div className="bg-gradient-to-br from-orange-300 to-peach-300 text-primary-foreground min-h-screen">
-      <div className="container mx-auto p-4">
-        <EditableProjectDetails project={project} />
-        <div className="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-lg leading-6 font-medium text-gray-900">Associated Records</h2>
+    <div className="min-h-screen bg-blue-900 text-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto">
+        <div className="bg-blue-800 shadow-lg rounded-lg mb-8 p-6">
+          <EditableProjectDetails project={project} />
+        </div>
+
+        <div className="bg-blue-800 shadow-lg rounded-lg p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Associated Records</h2>
             <button
               onClick={handleAddRecord}
-              className="mt-2 px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors duration-200 shadow-lg"
             >
               Add New Record
             </button>
-            <ul className="mt-2 divide-y divide-gray-200">
-              {records.map((record) => (
-                <li key={record.id} className="py-4">
-                  <Link href={`/company/projects/${project.id}/records/${record.id}`} className="block hover:bg-gray-50">
-                    <div className="flex space-x-3">
-                      <div className="flex-1 space-y-1">
-                        <h3 className="text-sm font-medium">{record.name}</h3>
-                        <p className="text-sm text-gray-500">{record.description}</p>
-                        <p className="text-sm text-gray-500">Created At: {record.created_at}</p>
-                      </div>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {records.map((record) => (
+              <Link key={record.id} href={`/company/projects/${project.id}/records/${record.id}`}>
+                <div className="bg-blue-700 p-4 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors duration-200">
+                  <h3 className="text-xl font-semibold mb-2">{record.name}</h3>
+                  <p className="text-blue-200 mb-2">{record.description}</p>
+                  <p className="text-sm text-blue-300">Created At: {record.created_at}</p>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
+
         {showAddRecordForm && (
-          <AddRecordForm
-            projectId={project.id}
-            onClose={handleCloseAddRecordForm}
-            onRecordAdded={handleRecordAdded}
-          />
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg w-full max-w-md">
+              <AddRecordForm
+                projectId={project.id}
+                onClose={handleCloseAddRecordForm}
+                onRecordAdded={handleRecordAdded}
+              />
+            </div>
+          </div>
         )}
       </div>
     </div>
