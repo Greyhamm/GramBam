@@ -23,37 +23,43 @@ const EditRecordFormModal: React.FC<EditRecordFormModalProps> = ({ record, onClo
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" onClick={onClose}>
+      <div className="colorful-form" onClick={e => e.stopPropagation()}>
         <h2 className="text-xl font-bold mb-4">Edit Record</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            value={editedRecord.name}
-            onChange={handleInputChange}
-            placeholder="Record Name"
-            className="w-full p-2 border rounded"
-            required
-          />
-          <textarea
-            name="description"
-            value={editedRecord.description}
-            onChange={handleInputChange}
-            placeholder="Record Description"
-            className="w-full p-2 border rounded"
-          />
+          <div className="form-group">
+            <label className="form-label" htmlFor="name">Record Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={editedRecord.name}
+              onChange={handleInputChange}
+              className="form-input"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="description">Record Description</label>
+            <textarea
+              id="description"
+              name="description"
+              value={editedRecord.description}
+              onChange={handleInputChange}
+              className="form-input"
+            />
+          </div>
           <div className="flex justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-300 text-black p-2 rounded hover:bg-gray-400"
+              className="form-button bg-gray-300 text-black hover:bg-gray-400"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+              className="form-button"
             >
               Save Changes
             </button>

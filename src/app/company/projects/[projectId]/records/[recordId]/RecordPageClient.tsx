@@ -102,72 +102,74 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
   const renderTaskColumn = (status: string) => {
     const filteredTasks = tasks.filter(task => task.status === status);
     return (
-      <div className="bg-gray-100 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2">{status.charAt(0).toUpperCase() + status.slice(1)}</h3>
-        {filteredTasks.map(task => (
-          <div key={task.id} className="bg-white p-2 mb-2 rounded cursor-pointer" onClick={() => handleViewTask(task)}>
-            <h4 className="font-semibold">{task.name}</h4>
-            <p className="text-sm text-gray-600">{task.description}</p>
-          </div>
-        ))}
+      <div className="w-full md:w-1/3 p-4">
+        <h3 className="text-xl font-bold text-white mb-4">{status.charAt(0).toUpperCase() + status.slice(1)}</h3>
+        <div className="bg-blue-800 rounded-lg p-4">
+          {filteredTasks.map(task => (
+            <div 
+              key={task.id} 
+              className="bg-orange-300 p-4 rounded-lg mb-4 cursor-pointer shadow-md hover:shadow-lg transition-shadow duration-200" 
+              onClick={() => handleViewTask(task)}
+            >
+              <h4 className="font-semibold text-blue-900">{task.name}</h4>
+              <p className="text-sm text-blue-800">{task.description}</p>
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
 
-
   return (
-    <div className="bg-gradient-to-br from-orange-300 to-peach-300 text-primary-foreground min-h-screen">
-      <div className="container mx-auto p-4">
-        <Link href={`/company/projects/${projectId}`} className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
+    <div className="min-h-screen bg-blue-900 text-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto">
+        <Link href={`/company/projects/${projectId}`} className="text-blue-300 hover:text-blue-100 mb-8 inline-block">
           &larr; Back to Project
         </Link>
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-          <div className="px-4 py-5 sm:px-6">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold">{record.name}</h1>
-              <button 
-                onClick={handleEditRecord}
-                className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-              >
-                Edit Record
-              </button>
-            </div>
-            <p className="text-gray-600 mb-2">{record.description}</p>
-            <p className="text-sm text-gray-500">Created At: {record.created_at}</p>
+        <div className="bg-blue-800 shadow-lg rounded-lg mb-8 p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-7xl font-bold">{record.name}</h1>
+            <button 
+              onClick={handleEditRecord}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200"
+            >
+              Edit Record
+            </button>
           </div>
+          <p className="text-blue-200 mb-2">{record.description}</p>
+          <p className="text-sm text-blue-300">Created At: {record.created_at}</p>
         </div>
 
         <button 
           onClick={() => setIsCreateModalOpen(true)} 
-          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mb-6"
+          className="bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors duration-200 mb-8 shadow-lg"
         >
           Create New Task
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-wrap -mx-4">
           {renderTaskColumn('pending')}
           {renderTaskColumn('in_progress')}
           {renderTaskColumn('completed')}
         </div>
 
         {viewingTask && (
-        <ViewTaskModal
-          task={viewingTask}
-          onClose={() => setViewingTask(null)}
-          onEdit={() => handleEditTask(viewingTask)}
-          companyUsers={companyUsers}
-        />
-      )}
+          <ViewTaskModal
+            task={viewingTask}
+            onClose={() => setViewingTask(null)}
+            onEdit={() => handleEditTask(viewingTask)}
+            companyUsers={companyUsers}
+          />
+        )}
 
-      {editingTask && (
-        <EditTaskModal
-          task={editingTask}
-          onClose={() => setEditingTask(null)}
-          onSave={handleSaveTask}
-          companyUsers={companyUsers}
-        />
-      )}
-
+        {editingTask && (
+          <EditTaskModal
+            task={editingTask}
+            onClose={() => setEditingTask(null)}
+            onSave={handleSaveTask}
+            companyUsers={companyUsers}
+          />
+        )}
 
         {isCreateModalOpen && (
           <CreateTaskFormModal
