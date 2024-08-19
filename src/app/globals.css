@@ -84,7 +84,19 @@ a {
   
 }
 
+.nav-link {
+  color: #BFDBFE; /* text-blue-200 */
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
 
+.nav-link:hover {
+  background-color: #1D4ED8; /* bg-blue-700 */
+  color: #FFFFFF;
+}
 
 nav {
   height: 150px;
@@ -245,3 +257,4 @@ b {
   text-align: center;
   margin-top: 20px;
 }
+

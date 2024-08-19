@@ -1,4 +1,3 @@
-// src/components/projectForm.tsx
 "use client"; 
 
 import { useState, ChangeEvent, FormEvent } from "react";
@@ -16,9 +15,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
   });
 
   const handleChange = (
-    e: ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     setProject({ ...project, [e.target.name]: e.target.value });
   };
@@ -42,99 +39,95 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
   };
 
   return (
-    <div className="w-full max-w-xs mx-auto">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4"
-      >
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="name"
-          >
-            Project Name
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="name"
-            type="text"
-            name="name"
-            value={project.name}
-            onChange={handleChange}
-            required
-            placeholder="Project Name"
-          />
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label
+          className="block text-blue-200 text-sm font-bold mb-2"
+          htmlFor="name"
+        >
+          Project Name
+        </label>
+        <input
+          className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+          id="name"
+          type="text"
+          name="name"
+          value={project.name}
+          onChange={handleChange}
+          required
+          placeholder="Enter project name"
+        />
+      </div>
 
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="description"
-          >
-            Description
-          </label>
-          <textarea
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="description"
-            name="description"
-            value={project.description}
-            onChange={handleChange}
-            required
-            placeholder="Project Description"
-          />
-        </div>
+      <div>
+        <label
+          className="block text-blue-200 text-sm font-bold mb-2"
+          htmlFor="description"
+        >
+          Description
+        </label>
+        <textarea
+          className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+          id="description"
+          name="description"
+          value={project.description}
+          onChange={handleChange}
+          required
+          placeholder="Enter project description"
+          rows={4}
+        />
+      </div>
 
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="client"
-          >
-            Client
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="client"
-            type="text"
-            name="client"
-            value={project.client}
-            onChange={handleChange}
-            placeholder="Client Name"
-          />
-        </div>
+      <div>
+        <label
+          className="block text-blue-200 text-sm font-bold mb-2"
+          htmlFor="client"
+        >
+          Client
+        </label>
+        <input
+          className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+          id="client"
+          type="text"
+          name="client"
+          value={project.client}
+          onChange={handleChange}
+          placeholder="Enter client name"
+        />
+      </div>
 
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="companyId"
-          >
-            Company
-          </label>
-          <select
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="companyId"
-            name="companyId"
-            value={project.companyId}
-            onChange={handleChange}
-            required
-          >
-            {companies.map((company) => (
-              <option key={company.id} value={company.id}>
-                {company.name}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div>
+        <label
+          className="block text-blue-200 text-sm font-bold mb-2"
+          htmlFor="companyId"
+        >
+          Company
+        </label>
+        <select
+          className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+          id="companyId"
+          name="companyId"
+          value={project.companyId}
+          onChange={handleChange}
+          required
+        >
+          {companies.map((company) => (
+            <option key={company.id} value={company.id}>
+              {company.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        <div className="flex items-center justify-between">
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="submit"
-          >
-            Create Project
-          </button>
-        </div>
-      </form>
-    </div>
+      <div className="flex justify-end">
+        <button
+          className="px-6 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors duration-200 shadow-lg text-sm font-semibold"
+          type="submit"
+        >
+          Create Project
+        </button>
+      </div>
+    </form>
   );
 };
 
