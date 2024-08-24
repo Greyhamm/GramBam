@@ -1,11 +1,11 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { getSession, getUserCompanies, getUserTasks, createTask, updateTask, getCompanyUsers } from "@/actions";
-import CreateCompany from "@/components/createcompanyForm";
 import { Task, Company, CompanyUser } from "@/lib";
 import ViewTaskModal from '@/components/viewTaskModal';
 import EditTaskModal from '@/components/editTaskModal';
 import CreateTaskModalProfile from '@/components/createTaskModalProfile';
+import CreateCompanyModal from '@/components/createCompanyModal';
 import { formatDateToLocal } from '../lib/utils';
 
 const ProfilePage = () => {
@@ -15,7 +15,8 @@ const ProfilePage = () => {
   const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
+  const [isCreateCompanyModalOpen, setIsCreateCompanyModalOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
     const sessionData = await getSession();
@@ -40,7 +41,7 @@ const ProfilePage = () => {
     try {
       await createTask(newTask.record_id, newTask);
       fetchData();
-      setIsCreateModalOpen(false);
+      setIsCreateTaskModalOpen(false);
     } catch (error) {
       console.error('Error creating task:', error);
     }
@@ -93,13 +94,39 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-blue-900 text-white py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto">
+    <div className="flex min-h-screen bg-blue-900 text-white">
+      {/* Sidebar */}
+      <div className="w-64 bg-blue-800 p-6">
+        <h2 className="text-xl font-semibold mb-4">Your Companies</h2>
+        <ul className="space-y-2 list-none"> {/* Added list-none class here */}
+          {companies.length > 0 ? (
+            companies.map((company) => (
+              <li 
+                key={company.id} 
+                className="bg-blue-400 text-blue-900 px-4 py-2 rounded-md hover:bg-blue-300 transition-colors duration-200 cursor-pointer text-center"
+              >
+                {company.name}
+              </li>
+            ))
+          ) : (
+            <li className="text-gray-400">No companies yet</li>
+          )}
+        </ul>
+        <button 
+          onClick={() => setIsCreateCompanyModalOpen(true)}
+          className="mt-4 w-full bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors duration-200"
+        >
+          Create New Company
+        </button>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 p-8">
         <div className="bg-blue-800 shadow-lg rounded-lg mb-8 p-6">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <button 
-              onClick={() => setIsCreateModalOpen(true)} 
+              onClick={() => setIsCreateTaskModalOpen(true)} 
               className="bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors duration-200 shadow-lg"
             >
               Create New Task
@@ -112,55 +139,41 @@ const ProfilePage = () => {
           {renderTaskColumn('in_progress')}
           {renderTaskColumn('completed')}
         </div>
-
-        <div className="grid gap-7 md:grid-cols-2">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-black mb-4">Create a New Company</h2>
-            <CreateCompany />
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-black mb-4">Your Companies</h2>
-            <ul>
-              {companies.length > 0 ? (
-                companies.map((company) => (
-                  <li key={company.id} className="text-black mb-2">
-                    {company.name}
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-500">You are not associated with any companies.</li>
-              )}
-            </ul>
-          </div>
-        </div>
-
-        {viewingTask && (
-          <ViewTaskModal
-            task={viewingTask}
-            onClose={() => setViewingTask(null)}
-            onEdit={() => handleEditTask(viewingTask)}
-            companyUsers={companyUsers}
-          />
-        )}
-
-        {editingTask && (
-          <EditTaskModal
-            task={editingTask}
-            onClose={() => setEditingTask(null)}
-            onSave={handleSaveTask}
-            companyUsers={companyUsers}
-          />
-        )}
-
-        {isCreateModalOpen && (
-          <CreateTaskModalProfile
-            onClose={() => setIsCreateModalOpen(false)}
-            onSave={handleCreateTask}
-            companies={companies}
-            companyUsers={companyUsers}
-          />
-        )}
       </div>
+
+      {viewingTask && (
+        <ViewTaskModal
+          task={viewingTask}
+          onClose={() => setViewingTask(null)}
+          onEdit={() => handleEditTask(viewingTask)}
+          companyUsers={companyUsers}
+        />
+      )}
+
+      {editingTask && (
+        <EditTaskModal
+          task={editingTask}
+          onClose={() => setEditingTask(null)}
+          onSave={handleSaveTask}
+          companyUsers={companyUsers}
+        />
+      )}
+
+      {isCreateTaskModalOpen && (
+        <CreateTaskModalProfile
+          onClose={() => setIsCreateTaskModalOpen(false)}
+          onSave={handleCreateTask}
+          companies={companies}
+          companyUsers={companyUsers}
+        />
+      )}
+
+      {isCreateCompanyModalOpen && (
+        <CreateCompanyModal
+          onClose={() => setIsCreateCompanyModalOpen(false)}
+          onCompanyCreated={fetchData}
+        />
+      )}
     </div>
   );
 };
