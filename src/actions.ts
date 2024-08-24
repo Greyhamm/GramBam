@@ -11,7 +11,7 @@ import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
 import { RecordPageClientProps } from "./lib";
-
+import { formatDateToLocal } from './app/lib/utils';
 // Get session function to retrieve the current session
 export const getSession = async (): Promise<IronSession<SessionData>> => {
   const session = await getIronSession<SessionData>(cookies(), sessionOptions);
@@ -419,7 +419,7 @@ export async function getRecordById(recordId: string): Promise<Record | null> {
     const record = result.rows[0];
     return {
       ...record,
-      created_at: record.created_at     };
+      created_at: record.created_at ? formatDateToLocal(record.created_at) : null    };
   } catch (error) {
     console.error('Error fetching record:', error);
     throw new Error('Failed to fetch record');

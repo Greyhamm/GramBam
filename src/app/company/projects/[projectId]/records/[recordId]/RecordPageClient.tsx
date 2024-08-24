@@ -9,11 +9,13 @@ import EditTaskModal from '@/components/editTaskModal';
 import CreateTaskFormModal from '@/components/createTaskModal';
 import EditRecordFormModal from '@/components/editRecordFormModal';
 import { formatDateToLocal } from '../../../../../lib/utils';
+import { init } from 'next/dist/compiled/webpack/webpack';
 
 export default function RecordPageClient({ record: initialRecord, projectId }: RecordPageClientProps) {
   const [record, setRecord] = useState<Record>({
     ...initialRecord,
-    created_at: formatDateToLocal(initialRecord.created_at)
+    created_at: initialRecord.created_at ? formatDateToLocal(initialRecord.created_at) : null 
+
   });
   const [tasks, setTasks] = useState<Task[]>([]);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
