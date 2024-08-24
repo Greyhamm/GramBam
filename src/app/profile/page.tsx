@@ -2,14 +2,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getSession, getUserCompanies, getUserTasks, createTask, updateTask, getCompanyUsers } from "@/actions";
 import CreateCompany from "@/components/createcompanyForm";
-import Link from "next/link";
 import { Task, Company, CompanyUser } from "@/lib";
 import ViewTaskModal from '@/components/viewTaskModal';
 import EditTaskModal from '@/components/editTaskModal';
-import CreateTaskFormModal from '@/components/createTaskModal';
-import { formatDateToLocal } from '../lib/utils'; // Adjust the import path as needed
-
-
+import CreateTaskModalProfile from '@/components/createTaskModalProfile';
+import { formatDateToLocal } from '../lib/utils';
 
 const ProfilePage = () => {
   const [session, setSession] = useState<any>(null);
@@ -39,9 +36,9 @@ const ProfilePage = () => {
     fetchData();
   }, [fetchData]);
 
-  const handleCreateTask = async (newTask: Omit<Task, 'id' | 'record_id' | 'created_at'>) => {
+  const handleCreateTask = async (newTask: Omit<Task, 'id' | 'created_at'>) => {
     try {
-      await createTask('dashboard', newTask);
+      await createTask(newTask.record_id, newTask);
       fetchData();
       setIsCreateModalOpen(false);
     } catch (error) {
@@ -156,9 +153,10 @@ const ProfilePage = () => {
         )}
 
         {isCreateModalOpen && (
-          <CreateTaskFormModal
+          <CreateTaskModalProfile
             onClose={() => setIsCreateModalOpen(false)}
             onSave={handleCreateTask}
+            companies={companies}
             companyUsers={companyUsers}
           />
         )}
