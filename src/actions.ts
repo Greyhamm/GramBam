@@ -555,7 +555,7 @@ export async function getUserTasks(): Promise<{ todo: Task[], inProgress: Task[]
       JOIN projects p ON r.project_id = p.id
       JOIN user_roles ur ON p.company_id = ur.company_id
       WHERE ur.user_id = ${userId}
-      ORDER BY t.created_at DESC
+      ORDER BY t.due_date 
     `;
 
     const tasks = result.rows;
