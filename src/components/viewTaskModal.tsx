@@ -1,5 +1,6 @@
 import React from 'react';
 import { Task, CompanyUser } from '@/lib';
+import { formatDateToLocal } from '../app/lib/utils'; // Adjust the import path as needed
 
 interface ViewTaskModalProps {
   task: Task;
@@ -14,6 +15,9 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = ({ task, onClose, onEdit, co
     const user = companyUsers.find(u => u.id === userId);
     return user ? user.username : 'Unknown User';
   };
+
+  const formattedDueDate = formatDateToLocal(task.due_date);
+  const formattedCreatedAt = formatDateToLocal(task.created_at);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" onClick={onClose}>
@@ -36,10 +40,18 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = ({ task, onClose, onEdit, co
             <label className="form-label">Assigned To</label>
             <p className="form-input bg-gray-100">{getAssignedUserName(task.assigned_to)}</p>
           </div>
-          <div className="form-group">
-            <label className="form-label">Due Date</label>
-            <p className="form-input bg-gray-100">{task.due_date || 'Not set'}</p>
-          </div>
+          {formattedDueDate && (
+            <div className="form-group">
+              <label className="form-label">Due Date</label>
+              <p className="form-input bg-gray-100">{formattedDueDate}</p>
+            </div>
+          )}
+          {formattedCreatedAt && (
+            <div className="form-group">
+              <label className="form-label">Created At</label>
+              <p className="form-input bg-gray-100">{formattedCreatedAt}</p>
+            </div>
+          )}
           <div className="flex justify-end space-x-2">
             <button onClick={onClose} className="form-button bg-gray-300 text-black hover:bg-gray-400">
               Close

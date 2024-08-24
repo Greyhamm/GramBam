@@ -69,13 +69,12 @@ export interface RecordData {
   }
 
 export interface Record {
-  id: string;
-  project_id: string;
-  name: string;
-  description: string;
-  created_at: string;
-}
-
+    id: string;
+    project_id: string;
+    name: string;
+    description: string;
+    created_at: string | null; // Allow for null here
+  }
 export interface RecordPageClientProps {
   record: Record;
   projectId: string;

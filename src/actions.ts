@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
 import { RecordPageClientProps } from "./lib";
+import { formatDateToLocal } from './app/lib/utils';
 // Get session function to retrieve the current session
 export const getSession = async (): Promise<IronSession<SessionData>> => {
   const session = await getIronSession<SessionData>(cookies(), sessionOptions);
@@ -418,8 +419,7 @@ export async function getRecordById(recordId: string): Promise<Record | null> {
     const record = result.rows[0];
     return {
       ...record,
-      created_at: new Date(record.created_at).toISOString()
-    };
+      created_at: record.created_at ? formatDateToLocal(record.created_at) : null    };
   } catch (error) {
     console.error('Error fetching record:', error);
     throw new Error('Failed to fetch record');
@@ -535,5 +535,40 @@ export async function updateRecord(recordId: string, updatedFields: Partial<Reco
   } catch (error) {
     console.error('Error updating record:', error);
     throw new Error('Failed to update the record.');
+  }
+}
+
+export async function getUserTasks(): Promise<{ todo: Task[], inProgress: Task[], done: Task[] }> {
+  try {
+    const session = await getSession();
+
+    if (!session.isLoggedIn || !session.user) {
+      throw new Error("You must be logged in to view your tasks.");
+    }
+
+    const userId = session.user.id;
+
+    const result = await sql<Task>`
+      SELECT t.id, t.record_id, t.name, t.description, t.status, t.assigned_to, t.due_date, t.created_at, r.project_id, p.company_id
+      FROM tasks t
+      JOIN records r ON t.record_id = r.id
+      JOIN projects p ON r.project_id = p.id
+      JOIN user_roles ur ON p.company_id = ur.company_id
+      WHERE ur.user_id = ${userId}
+      ORDER BY t.created_at DESC
+    `;
+
+    const tasks = result.rows;
+
+    const categorizedTasks = {
+      todo: tasks.filter(task => task.status === 'pending'),
+      inProgress: tasks.filter(task => task.status === 'in_progress'),
+      done: tasks.filter(task => task.status === 'completed')
+    };
+
+    return categorizedTasks;
+  } catch (error) {
+    console.error('Error fetching user tasks:', error);
+    throw new Error('Failed to fetch user tasks');
   }
 }
