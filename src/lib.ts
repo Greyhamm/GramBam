@@ -58,7 +58,7 @@ export interface CreateProjectParams {
     company_id: string;
     name: string;
     description: string;
-    created_at: string | null; // ISO date string
+    created_at: string ; // ISO date string
     client?: string;
     lead_user?: string;
   }
@@ -73,7 +73,7 @@ export interface Record {
     project_id: string;
     name: string;
     description: string;
-    created_at: string | null; // Allow for null here
+    created_at: string; // Allow for null here
   }
 export interface RecordPageClientProps {
   record: Record;

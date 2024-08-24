@@ -419,7 +419,7 @@ export async function getRecordById(recordId: string): Promise<Record | null> {
     const record = result.rows[0];
     return {
       ...record,
-      created_at: record.created_at ? formatDateToLocal(record.created_at) : null    };
+      created_at: formatDateToLocal(record.created_at)    };
   } catch (error) {
     console.error('Error fetching record:', error);
     throw new Error('Failed to fetch record');

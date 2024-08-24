@@ -8,7 +8,7 @@ import ViewTaskModal from '@/components/viewTaskModal';
 import EditTaskModal from '@/components/editTaskModal';
 import CreateTaskFormModal from '@/components/createTaskModal';
 import EditRecordFormModal from '@/components/editRecordFormModal';
-import { formatDateToLocal } from '../../../../../lib/utils';
+import { formatDateToLocal } from '../app/lib/utils';
 
 export default function RecordPageClient({ record: initialRecord, projectId }: RecordPageClientProps) {
   const [record, setRecord] = useState<Record>({

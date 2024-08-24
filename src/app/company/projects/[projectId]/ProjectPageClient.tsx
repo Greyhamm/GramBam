@@ -31,8 +31,7 @@ export default function ProjectPageClient({ project, initialRecords }: ProjectPa
       const updatedRecords = await fetchProjectRecords(project.id);
       const formattedRecords = updatedRecords.map(record => ({
         ...record,
-        created_at: record.created_at ? formatDateToLocal(record.created_at) : null  
-        ,
+        created_at: formatDateToLocal(record.created_at),
       }));
       setRecords(formattedRecords);
       setShowAddRecordForm(false);
