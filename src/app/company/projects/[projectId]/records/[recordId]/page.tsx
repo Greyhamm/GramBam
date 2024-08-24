@@ -26,7 +26,8 @@ export default async function RecordPage({ params }: RecordPageProps) {
       // Format date consistently
       const serializedRecord = {
         ...record,
-        created_at: formatDateToLocal(record.created_at),
+        created_at: record.created_at ? formatDateToLocal(record.created_at) : null  
+        ,
       };
   
       return <RecordPageClient record={serializedRecord} projectId={projectId} />;

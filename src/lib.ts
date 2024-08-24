@@ -58,7 +58,7 @@ export interface CreateProjectParams {
     company_id: string;
     name: string;
     description: string;
-    created_at: string; // ISO date string
+    created_at: string | null; // ISO date string
     client?: string;
     lead_user?: string;
   }
