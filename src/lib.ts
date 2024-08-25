@@ -102,3 +102,16 @@ export interface CompanyUser {
   id: string;
   username: string;
 }
+
+export interface Invitation {
+  id: string;
+  company_name: string;
+  role: string;
+  token: string;
+}
+
+export interface NotificationsProps {
+  invitations: Invitation[];
+  userId: string;
+  onAccept: () => void;
+}

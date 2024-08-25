@@ -646,3 +646,11 @@ export async function checkPendingInvitations(userEmail: string): Promise<any[]>
   `;
   return rows;
 }
+
+export async function declineInvitation(token: string): Promise<void> {
+  await sql`
+    UPDATE invitations
+    SET status = 'declined'
+    WHERE token = ${token}
+  `;
+}

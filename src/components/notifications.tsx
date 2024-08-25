@@ -1,19 +1,9 @@
 // src/components/Notifications.tsx
 import React from 'react';
 import { acceptInvitation } from '@/actions';
+import { Invitation, NotificationsProps } from '@/lib';
 
-interface Invitation {
-  id: string;
-  company_name: string;
-  role: string;
-  token: string;
-}
 
-interface NotificationsProps {
-  invitations: Invitation[];
-  userId: string;
-  onAccept: () => void;
-}
 
 export default function Notifications({ invitations, userId, onAccept }: NotificationsProps) {
   const handleAccept = async (token: string) => {

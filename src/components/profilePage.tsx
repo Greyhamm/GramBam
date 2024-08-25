@@ -1,13 +1,14 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
-import { getUserCompanies, getUserTasks, createTask, updateTask, getCompanyUsers, acceptInvitation, checkPendingInvitations } from "@/actions";
+import { getUserCompanies, getUserTasks, createTask, updateTask, getCompanyUsers, acceptInvitation, checkPendingInvitations, declineInvitation } from "@/actions";
 import { Task, Company, CompanyUser } from "@/lib";
 import ViewTaskModal from '@/components/viewTaskModal';
 import EditTaskModal from '@/components/editTaskModal';
 import CreateTaskModalProfile from '@/components/createTaskModalProfile';
 import CreateCompanyModal from '@/components/createCompanyModal';
 import { formatDateToLocal } from '../app/lib/utils';
-
+import { Invitation } from '@/lib';
+import NotificationDropdown from './notificationDropdown';
 // Define a type for the serializable session data
 type SerializableSession = {
   isLoggedIn: boolean;
@@ -16,13 +17,7 @@ type SerializableSession = {
   email?: string;
 };
 
-// Define a type for the invitation
-type Invitation = {
-  id: string;
-  company_name: string;
-  role: string;
-  token: string;
-};
+
 
 const ProfilePage = ({ 
   initialSession, 
@@ -41,6 +36,8 @@ const ProfilePage = ({
   const [isCreateCompanyModalOpen, setIsCreateCompanyModalOpen] = useState(false);
   const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState(false);
   const [invitations, setInvitations] = useState<Invitation[]>(initialInvitations);
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+
 
   const fetchData = useCallback(async () => {
     if (session.isLoggedIn && session.email) {
@@ -101,6 +98,15 @@ const ProfilePage = ({
       }
     } catch (error) {
       console.error('Error accepting invitation:', error);
+    }
+  };
+
+  const handleDeclineInvitation = async (token: string) => {
+    try {
+      await declineInvitation(token);
+      setInvitations(invitations.filter(inv => inv.token !== token));
+    } catch (error) {
+      console.error('Error declining invitation:', error);
     }
   };
 
@@ -168,37 +174,41 @@ const ProfilePage = ({
         </button>
       </div>
 
+
       {/* Main content */}
       <div className="flex-1 p-8">
         <div className="bg-blue-800 shadow-lg rounded-lg mb-8 p-6">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-3xl font-bold">Dashboard</h1>
-            <button 
-              onClick={() => setIsCreateTaskModalOpen(true)} 
-              className="bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors duration-200 shadow-lg"
-            >
-              Create New Task
-            </button>
+            <div className="flex items-center">
+              <button 
+                onClick={() => setIsCreateTaskModalOpen(true)} 
+                className="bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors duration-200 shadow-lg mr-4"
+              >
+                Create New Task
+              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
+                  className="relative p-2 text-gray-400 hover:text-white focus:outline-none focus:text-white text-2xl"
+                >
+                  🔔
+                  {invitations.length > 0 && (
+                    <span className="absolute top-0 right-0 block h-3 w-3 rounded-full bg-orange-500 ring-2 ring-white" />
+                  )}
+                </button>
+                {isNotificationDropdownOpen && (
+                  <NotificationDropdown
+                    invitations={invitations}
+                    onAccept={handleAcceptInvitation}
+                    onDecline={handleDeclineInvitation}
+                  />
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Notifications Section */}
-        {invitations && invitations.length > 0 && (
-          <div className="bg-blue-800 shadow-lg rounded-lg mb-8 p-6">
-            <h2 className="text-2xl font-bold mb-4">Pending Invitations</h2>
-            {invitations.map((invitation) => (
-              <div key={invitation.id} className="bg-blue-700 rounded-lg p-4 mb-4">
-                <p>You have been invited to join {invitation.company_name} as {invitation.role}.</p>
-                <button 
-                  onClick={() => handleAcceptInvitation(invitation.token)}
-                  className="mt-2 bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors duration-200"
-                >
-                  Accept Invitation
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
 
         <div className="flex flex-wrap -mx-4 mb-8">
           {renderTaskColumn('pending')}
