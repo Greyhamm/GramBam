@@ -17,7 +17,6 @@
   - [Styling](#styling)
   - [Performance](#performance)
   - [Contributing](#contributing)
-  - [License](#license)
 
 ## Introduction
 
@@ -127,7 +126,7 @@ The application uses a custom authentication system implemented with iron-sessio
 
 ## Database
 
-While the specific database used is not clear from the provided code, the application interacts with a database through various actions defined in the `actions` directory. These include operations for managing users, companies, projects, records, and tasks.
+The application interacts with a PostgreSQL database, hosted by Vercel, through various actions defined in the `actions` directory. These include operations for managing users, companies, projects, records, and tasks.
 
 ## Styling
 
@@ -146,11 +145,3 @@ Contributions to Grambam are welcome! Please follow these steps:
 3. Make your changes and commit them: `git commit -m 'Add some feature'`
 4. Push to the branch: `git push origin feature-branch-name`
 5. Submit a pull request
-
-## License
-
-[Specify the license under which this project is released]
-
----
-
-For more information or support, please contact [Your Contact Information].
