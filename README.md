@@ -1,5 +1,5 @@
 # Grambam Project Management Application
-![alt text](https://github.com/Greyhamm/GramBam/blob/main/GrambamHomepage.png?raw=true)
+![alt text](https://github.com/Greyhamm/GramBam/blob/main/public/GrambamHomepage.png?raw=true)
 ## Table of Contents
 
 - [Grambam Project Management Application](#grambam-project-management-application)
