@@ -39,7 +39,7 @@ Grambam is a comprehensive project management application designed to help teams
 
 - **Frontend**: React, Next.js
 - **Backend**: Next.js API routes
-- **Database**: Not specified in the provided code, but likely uses a database
+- **Database**: PostgreSQL
 - **Authentication**: Custom implementation with iron-session
 - **Styling**: Tailwind CSS
 - **State Management**: React hooks (useState, useEffect)
