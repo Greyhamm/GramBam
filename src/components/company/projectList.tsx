@@ -1,17 +1,17 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Project, Company, CompanyUser } from "@/lib";
 import { fetchProjectsWithTasks, searchProjects, fetchUsers, fetchCompanyClients } from "@/actions";
 
 interface ProjectListProps {
-  onModalOpen?: (isOpen: boolean) => void;
+  initialCompany?: Company | null;
 }
 
-const ProjectList: React.FC<ProjectListProps> = ({ onModalOpen }) => {
+const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(initialCompany || null);
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<CompanyUser[]>([]);
   const [clients, setClients] = useState<string[]>([]);
@@ -36,24 +36,26 @@ const ProjectList: React.FC<ProjectListProps> = ({ onModalOpen }) => {
 
   useEffect(() => {
     if (selectedCompany) {
-      fetchProjectsWithTasks(selectedCompany.id).then(projects => {
-        setAllProjects(projects);
-        setDisplayedProjects(projects);
-      });
-      fetchUsers(selectedCompany.id).then(setUsers);
-      fetchCompanyClients(selectedCompany.id).then(setClients);
-    } else {
-      setAllProjects([]);
-      setDisplayedProjects([]);
-      setUsers([]);
-      setClients([]);
+      loadProjectsAndData(selectedCompany.id);
     }
   }, [selectedCompany]);
 
-  useEffect(() => {
-    // Notify parent component about modal state
-    onModalOpen?.(isFilterModalOpen);
-  }, [isFilterModalOpen, onModalOpen]);
+  const loadProjectsAndData = async (companyId: string) => {
+    try {
+      const [projects, fetchedUsers, fetchedClients] = await Promise.all([
+        fetchProjectsWithTasks(companyId),
+        fetchUsers(companyId),
+        fetchCompanyClients(companyId)
+      ]);
+      setAllProjects(projects);
+      setDisplayedProjects(projects);
+      setUsers(fetchedUsers);
+      setClients(fetchedClients);
+    } catch (error) {
+      console.error('Error loading projects and data:', error);
+      // Handle error (e.g., show error message to user)
+    }
+  };
 
   const handleProjectClick = (projectId: string) => {
     router.push(`/company/projects/${projectId}`);
