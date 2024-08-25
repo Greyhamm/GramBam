@@ -1,7 +1,11 @@
 import React from 'react';
-import { Invitation, NotificationDropdownProps } from '@/lib';
+import { Invitation } from '@/lib';
 
-
+interface NotificationDropdownProps {
+  invitations: Invitation[];
+  onAccept: (token: string) => void;
+  onDecline: (token: string) => void;
+}
 
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ invitations, onAccept, onDecline }) => {
   return (
