@@ -1,36 +1,156 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Grambam Project Management Application
+
+## Table of Contents
+
+- [Grambam Project Management Application](#grambam-project-management-application)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Features](#features)
+  - [Technology Stack](#technology-stack)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Project Structure](#project-structure)
+  - [Key Components](#key-components)
+  - [Authentication](#authentication)
+  - [Database](#database)
+  - [Styling](#styling)
+  - [Performance](#performance)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+## Introduction
+
+Grambam is a comprehensive project management application designed to help teams collaborate effectively. It provides a robust platform for managing companies, projects, records, and tasks, with features like user authentication, role-based access control, and real-time notifications.
+
+## Features
+
+- User authentication (signup, login, logout)
+- Company management
+- Project creation and management
+- Record tracking within projects
+- Task management with status tracking (pending, in progress, completed)
+- Role-based access control (manager, supervisor, employee)
+- User invitations to join companies
+- Editable project and record details
+- Responsive design for various screen sizes
+
+## Technology Stack
+
+- **Frontend**: React, Next.js
+- **Backend**: Next.js API routes
+- **Database**: Not specified in the provided code, but likely uses a database
+- **Authentication**: Custom implementation with iron-session
+- **Styling**: Tailwind CSS
+- **State Management**: React hooks (useState, useEffect)
+- **Routing**: Next.js file-based routing
+- **Performance Monitoring**: Vercel Speed Insights
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js (version 14 or later recommended)
+- npm or yarn package manager
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+   ```
+   git clone https://github.com/your-username/grambam.git
+   ```
 
-## Learn More
+2. Navigate to the project directory:
 
-To learn more about Next.js, take a look at the following resources:
+   ```
+   cd grambam
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Install dependencies:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   ```
+   npm install
+   ```
 
-## Deploy on Vercel
+   or
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```
+   yarn install
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+4. Set up environment variables:
+   Create a `.env.local` file in the root directory and add necessary environment variables (e.g., database connection strings, session secret).
+
+5. Run the development server:
+
+   ```
+   npm run dev
+   ```
+
+   or
+
+   ```
+   yarn dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+
+## Project Structure
+
+The project follows a typical Next.js structure with some additional organizational patterns:
+
+- `/app`: Contains the main application pages and layouts
+- `/components`: Reusable React components
+- `/lib`: Utility functions, type definitions, and shared constants
+- `/actions`: Server-side actions for data fetching and manipulation
+- `/public`: Static assets
+
+## Key Components
+
+- `Navbar`: The main navigation component
+- `LoginForm` and `SignupForm`: User authentication forms
+- `ProjectForm`: For creating new projects
+- `EditableProjectDetails`: Allows editing of project details
+- `AddRecordForm`: For adding new records to a project
+- `TaskList`: Displays tasks for a record
+- `ViewTaskModal` and `EditTaskModal`: For viewing and editing tasks
+- `NotificationDropdown`: Displays user notifications
+
+## Authentication
+
+The application uses a custom authentication system implemented with iron-session. Key files related to authentication include:
+
+- `loginForm.tsx` and `signupForm.tsx` for user input
+- `login` and `signup` actions in the server-side code
+- `getSession` action to retrieve the current user session
+
+## Database
+
+While the specific database used is not clear from the provided code, the application interacts with a database through various actions defined in the `actions` directory. These include operations for managing users, companies, projects, records, and tasks.
+
+## Styling
+
+The project uses Tailwind CSS for styling, providing a responsive and modern design. Custom styles are defined in `globals.css`.
+
+## Performance
+
+The application uses Vercel Speed Insights for performance monitoring, as seen in the `layout.tsx` file.
+
+## Contributing
+
+Contributions to Grambam are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a new branch: `git checkout -b feature-branch-name`
+3. Make your changes and commit them: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature-branch-name`
+5. Submit a pull request
+
+## License
+
+[Specify the license under which this project is released]
+
+---
+
+For more information or support, please contact [Your Contact Information].
