@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Project, Company, CompanyUser } from "@/lib";
 import { fetchProjectsWithTasks, searchProjects, fetchUsers, fetchCompanyClients } from "@/actions";
@@ -9,7 +9,7 @@ interface ProjectListProps {
 }
 
 const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
-  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(initialCompany || null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,11 +22,46 @@ const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
     endDate: ""
   });
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const projectsPerPage = 9;
+
+  const loadProjectsAndData = useCallback(async (companyId: string, page: number) => {
+    setIsLoading(true);
+    try {
+      console.log(`Fetching projects for company ${companyId}, page ${page}`);
+      const [projectsResult, fetchedUsers, fetchedClients] = await Promise.all([
+        fetchProjectsWithTasks(companyId, projectsPerPage, (page - 1) * projectsPerPage),
+        fetchUsers(companyId),
+        fetchCompanyClients(companyId)
+      ]);
+      
+      console.log(`Received ${projectsResult.data.length} projects, total: ${projectsResult.total}`);
+      console.log('Projects:', projectsResult.data);
+      
+      setProjects(projectsResult.data);
+      setDisplayedProjects(projectsResult.data);
+      setTotalProjects(projectsResult.total);
+      setUsers(fetchedUsers);
+      setClients(fetchedClients);
+    } catch (error) {
+      console.error('Error loading projects and data:', error);
+      // Handle error (e.g., show error message to user)
+    } finally {
+      setIsLoading(false);
+    }
+  }, [projectsPerPage]);
 
   useEffect(() => {
     const handleCompanySelected = (event: CustomEvent) => {
       setSelectedCompany(event.detail);
+      setProjects([]);
+      setDisplayedProjects([]);
+      setCurrentPage(1);
     };
     window.addEventListener('companySelected', handleCompanySelected as EventListener);
     return () => {
@@ -36,26 +71,9 @@ const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
 
   useEffect(() => {
     if (selectedCompany) {
-      loadProjectsAndData(selectedCompany.id);
+      loadProjectsAndData(selectedCompany.id, currentPage);
     }
-  }, [selectedCompany]);
-
-  const loadProjectsAndData = async (companyId: string) => {
-    try {
-      const [projects, fetchedUsers, fetchedClients] = await Promise.all([
-        fetchProjectsWithTasks(companyId),
-        fetchUsers(companyId),
-        fetchCompanyClients(companyId)
-      ]);
-      setAllProjects(projects);
-      setDisplayedProjects(projects);
-      setUsers(fetchedUsers);
-      setClients(fetchedClients);
-    } catch (error) {
-      console.error('Error loading projects and data:', error);
-      // Handle error (e.g., show error message to user)
-    }
-  };
+  }, [selectedCompany, currentPage, loadProjectsAndData]);
 
   const handleProjectClick = (projectId: string) => {
     router.push(`/company/projects/${projectId}`);
@@ -65,8 +83,10 @@ const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
     if (selectedCompany && searchTerm) {
       const results = await searchProjects(selectedCompany.id, searchTerm);
       setDisplayedProjects(results);
-    } else {
-      setDisplayedProjects(allProjects);
+      setTotalProjects(results.length);
+      setCurrentPage(1);
+    } else if (selectedCompany) {
+      loadProjectsAndData(selectedCompany.id, 1);
     }
   };
 
@@ -76,7 +96,7 @@ const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
   };
 
   const applyFilters = () => {
-    let filteredProjects = allProjects;
+    let filteredProjects = projects;
 
     if (filters.client) {
       filteredProjects = filteredProjects.filter(project => project.client === filters.client);
@@ -92,6 +112,8 @@ const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
     }
 
     setDisplayedProjects(filteredProjects);
+    setTotalProjects(filteredProjects.length);
+    setCurrentPage(1);
     setIsFilterModalOpen(false);
   };
 
@@ -102,7 +124,9 @@ const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
       startDate: "",
       endDate: ""
     });
-    setDisplayedProjects(allProjects);
+    if (selectedCompany) {
+      loadProjectsAndData(selectedCompany.id, 1);
+    }
     setIsFilterModalOpen(false);
   };
 
@@ -112,9 +136,15 @@ const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
     return user ? user.username : 'Unknown';
   };
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   if (!selectedCompany) {
     return <p className="text-white">Please select a company to view its projects.</p>;
   }
+
+  const totalPages = Math.ceil(totalProjects / projectsPerPage);
 
   return (
     <div className="relative">
@@ -207,21 +237,48 @@ const ProjectList: React.FC<ProjectListProps> = ({ initialCompany }) => {
           </div>
         </div>
       )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {displayedProjects.map((project) => (
-          <div
-            key={project.id}
-            className="bg-blue-700 p-4 rounded shadow cursor-pointer hover:bg-blue-600 transition-colors duration-200"
-            onClick={() => handleProjectClick(project.id)}
-          >
-            <h3 className="text-xl font-bold mb-2">{project.name}</h3>
-            <p>{project.description}</p>
-            <p className="mt-2">Client: {project.client ?? 'N/A'}</p>
-            <p>Lead User: {getUsernameById(project.lead_user)}</p>
-            <p>Created: {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'N/A'}</p>
+         {isLoading ? (
+        <p className="text-white">Loading projects...</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {displayedProjects.map((project) => (
+              <div
+                key={project.id}
+                className="bg-blue-700 p-4 rounded shadow cursor-pointer hover:bg-blue-600 transition-colors duration-200"
+                onClick={() => handleProjectClick(project.id)}
+              >
+                <h3 className="text-xl font-bold mb-2">{project.name}</h3>
+                <p>{project.description}</p>
+                <p className="mt-2">Client: {project.client ?? 'N/A'}</p>
+                <p>Lead User: {getUsernameById(project.lead_user)}</p>
+                <p>Created: {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'N/A'}</p>
+              </div>
+            ))}
           </div>
-        ))}
+          <p className="text-white mt-4">Showing {displayedProjects.length} projects (Page {currentPage} of {totalPages})</p>
+        </>
+      )}
+
+      {/* Pagination controls */}
+      <div className="mt-4 flex justify-center">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-blue-500 text-white rounded-l disabled:bg-gray-300"
+        >
+          Previous
+        </button>
+        <span className="px-4 py-2 bg-gray-200">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages || totalPages === 0}
+          className="px-4 py-2 bg-blue-500 text-white rounded-r disabled:bg-gray-300"
+        >
+          Next
+        </button>
       </div>
     </div>
   );
