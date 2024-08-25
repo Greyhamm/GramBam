@@ -115,3 +115,10 @@ export interface NotificationsProps {
   userId: string;
   onAccept: () => void;
 }
+
+export interface NotificationDropdownProps {
+  invitations: Invitation[];
+  onAccept: (token: string) => void;
+  onDecline: (token: string) => void;
+}
+
