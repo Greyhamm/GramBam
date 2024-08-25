@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Task, CompanyUser, Company, Project, Record } from '@/lib';
-import { getCompanyProjects, fetchProjectRecords } from '@/actions';
+import { getCompanyProjects, fetchProjectRecords, getCompanyUsers } from '@/actions';
 
 interface CreateTaskModalProfileProps {
   onClose: () => void;
   onSave: (newTask: Omit<Task, 'id' | 'created_at'>) => void;
   companies: Company[];
-  companyUsers: CompanyUser[];
 }
 
 const CreateTaskModalProfile: React.FC<CreateTaskModalProfileProps> = ({
   onClose,
   onSave,
   companies,
-  companyUsers,
 }) => {
   const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [records, setRecords] = useState<Record[]>([]);
   const [selectedRecord, setSelectedRecord] = useState<string>('');
+  const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'created_at'>>({
     name: '',
     description: '',
@@ -32,6 +31,7 @@ const CreateTaskModalProfile: React.FC<CreateTaskModalProfileProps> = ({
   useEffect(() => {
     if (selectedCompany) {
       getCompanyProjects(selectedCompany).then(setProjects);
+      getCompanyUsers(selectedCompany).then(setCompanyUsers);
     }
   }, [selectedCompany]);
 
@@ -47,6 +47,8 @@ const CreateTaskModalProfile: React.FC<CreateTaskModalProfileProps> = ({
     setSelectedRecord('');
     setProjects([]);
     setRecords([]);
+    setCompanyUsers([]);
+    setNewTask(prev => ({ ...prev, assigned_to: '' }));
   };
 
   const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

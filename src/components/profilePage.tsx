@@ -144,18 +144,18 @@ const ProfilePage = ({
         <div className="relative">
           <button 
             onClick={() => setIsCompanyDropdownOpen(!isCompanyDropdownOpen)}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 flex justify-between items-center"
+            className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 flex justify-between items-center "
           >
             <span>Your Companies</span>
             <span className={`transform transition-transform duration-200 ${isCompanyDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
           </button>
           {isCompanyDropdownOpen && (
-            <ul className="absolute z-10 w-full mt-2 bg-blue-700 rounded-md shadow-lg">
+            <ul className="absolute z-10 w-full mt-2 bg-blue-700 rounded-md shadow-lg list-none">
               {companies.length > 0 ? (
                 companies.map((company) => (
                   <li 
                     key={company.id} 
-                    className="px-4 py-2 hover:bg-blue-600 cursor-pointer"
+                    className="px-4 py-2 hover:bg-blue-600 cursor-pointer m"
                   >
                     {company.name}
                   </li>
@@ -240,7 +240,6 @@ const ProfilePage = ({
           onClose={() => setIsCreateTaskModalOpen(false)}
           onSave={handleCreateTask}
           companies={companies}
-          companyUsers={companyUsers}
         />
       )}
 
