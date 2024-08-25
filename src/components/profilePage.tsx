@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
-import { getUserCompanies, getUserTasks, createTask, updateTask, getCompanyUsers } from "@/actions";
+import { getUserCompanies, getUserTasks, createTask, updateTask, getCompanyUsers, acceptInvitation, checkPendingInvitations } from "@/actions";
 import { Task, Company, CompanyUser } from "@/lib";
 import ViewTaskModal from '@/components/viewTaskModal';
 import EditTaskModal from '@/components/editTaskModal';
@@ -13,9 +13,24 @@ type SerializableSession = {
   isLoggedIn: boolean;
   userId?: string;
   username?: string;
+  email?: string;
 };
 
-const ProfilePage = ({ initialSession }: { initialSession: SerializableSession }) => {
+// Define a type for the invitation
+type Invitation = {
+  id: string;
+  company_name: string;
+  role: string;
+  token: string;
+};
+
+const ProfilePage = ({ 
+  initialSession, 
+  initialInvitations 
+}: { 
+  initialSession: SerializableSession, 
+  initialInvitations: Invitation[] 
+}) => {
   const [session, setSession] = useState<SerializableSession>(initialSession);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -25,9 +40,10 @@ const ProfilePage = ({ initialSession }: { initialSession: SerializableSession }
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
   const [isCreateCompanyModalOpen, setIsCreateCompanyModalOpen] = useState(false);
   const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState(false);
+  const [invitations, setInvitations] = useState<Invitation[]>(initialInvitations);
 
   const fetchData = useCallback(async () => {
-    if (session.isLoggedIn) {
+    if (session.isLoggedIn && session.email) {
       const fetchedCompanies = await getUserCompanies();
       setCompanies(fetchedCompanies);
       const fetchedTasks = await getUserTasks();
@@ -36,8 +52,12 @@ const ProfilePage = ({ initialSession }: { initialSession: SerializableSession }
         const users = await getCompanyUsers(fetchedCompanies[0].id);
         setCompanyUsers(users);
       }
+      
+      // Fetch invitations
+      const fetchedInvitations = await checkPendingInvitations(session.email);
+      setInvitations(fetchedInvitations);
     }
-  }, [session.isLoggedIn]);
+  }, [session.isLoggedIn, session.email]);
 
   useEffect(() => {
     fetchData();
@@ -69,6 +89,18 @@ const ProfilePage = ({ initialSession }: { initialSession: SerializableSession }
       setEditingTask(null);
     } catch (error) {
       console.error('Error updating task:', error);
+    }
+  };
+
+  const handleAcceptInvitation = async (token: string) => {
+    try {
+      if (session.userId) {
+        await acceptInvitation(token, session.userId);
+        setInvitations(invitations.filter(inv => inv.token !== token));
+        fetchData(); // Refresh data to include new company
+      }
+    } catch (error) {
+      console.error('Error accepting invitation:', error);
     }
   };
 
@@ -149,6 +181,24 @@ const ProfilePage = ({ initialSession }: { initialSession: SerializableSession }
             </button>
           </div>
         </div>
+
+        {/* Notifications Section */}
+        {invitations && invitations.length > 0 && (
+          <div className="bg-blue-800 shadow-lg rounded-lg mb-8 p-6">
+            <h2 className="text-2xl font-bold mb-4">Pending Invitations</h2>
+            {invitations.map((invitation) => (
+              <div key={invitation.id} className="bg-blue-700 rounded-lg p-4 mb-4">
+                <p>You have been invited to join {invitation.company_name} as {invitation.role}.</p>
+                <button 
+                  onClick={() => handleAcceptInvitation(invitation.token)}
+                  className="mt-2 bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors duration-200"
+                >
+                  Accept Invitation
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="flex flex-wrap -mx-4 mb-8">
           {renderTaskColumn('pending')}

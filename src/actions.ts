@@ -2,7 +2,7 @@
 
 import { IronSession } from "iron-session";
 import { getIronSession } from "iron-session";
-import { sql } from '@vercel/postgres';
+import { sql, QueryResult, QueryResultRow } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 import { cookies } from "next/headers";
 import { sessionOptions, SessionData, defaultSession, User } from './lib';
@@ -12,6 +12,7 @@ import { useRouter } from 'next/router'
 import { revalidatePath } from "next/cache";
 import { RecordPageClientProps } from "./lib";
 import { formatDateToLocal } from './app/lib/utils';
+import crypto from 'crypto';
 // Get session function to retrieve the current session
 export const getSession = async (): Promise<IronSession<SessionData>> => {
   const session = await getIronSession<SessionData>(cookies(), sessionOptions);
@@ -571,4 +572,77 @@ export async function getUserTasks(): Promise<{ todo: Task[], inProgress: Task[]
     console.error('Error fetching user tasks:', error);
     throw new Error('Failed to fetch user tasks');
   }
+}
+
+async function canInviteUsers(userId: string, companyId: string): Promise<boolean> {
+  const { rows } = await sql`
+    SELECT role FROM user_roles
+    WHERE user_id = ${userId} AND company_id = ${companyId}
+  `;
+  
+  if (rows.length === 0) return false;
+  
+  const role = rows[0].role;
+  return ['creator', 'manager'].includes(role.toLowerCase());
+}
+
+
+export async function createInvitation(inviterUserId: string, companyId: string, inviteeEmail: string, role: 'manager' | 'supervisor' | 'employee'): Promise<void> {
+  if (!await canInviteUsers(inviterUserId, companyId)) {
+    throw new Error('You do not have permission to invite users.');
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  await sql`
+    INSERT INTO invitations (company_id, inviter_id, email, role, token, expires_at, status)
+    VALUES (${companyId}, ${inviterUserId}, ${inviteeEmail}, ${role}, ${token}, ${expiresAt}, 'pending')
+  `;
+}
+
+export async function acceptInvitation(token: string, userId: string): Promise<void> {
+  // First, fetch the invitation
+  const { rows } = await sql`
+    SELECT * FROM invitations
+    WHERE token = ${token}
+    AND status = 'pending'
+    AND expires_at > NOW()
+  `;
+
+  if (rows.length === 0) {
+    throw new Error('Invalid or expired invitation.');
+  }
+
+  const invitation = rows[0];
+
+  try {
+    // Insert the new user role
+    await sql`
+      INSERT INTO user_roles (user_id, company_id, role)
+      VALUES (${userId}, ${invitation.company_id}, ${invitation.role})
+    `;
+
+    // Update the invitation status
+    await sql`
+      UPDATE invitations
+      SET status = 'accepted'
+      WHERE id = ${invitation.id}
+    `;
+  } catch (error) {
+    console.error('Error accepting invitation:', error);
+    throw new Error('Failed to accept invitation. Please try again.');
+  }
+}
+
+export async function checkPendingInvitations(userEmail: string): Promise<any[]> {
+  const { rows } = await sql`
+    SELECT i.*, c.name as company_name
+    FROM invitations i
+    JOIN companies c ON i.company_id = c.id
+    WHERE i.email = ${userEmail}
+    AND i.status = 'pending'
+    AND i.expires_at > NOW()
+  `;
+  return rows;
 }

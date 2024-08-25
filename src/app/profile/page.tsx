@@ -1,4 +1,5 @@
-import { getSession } from "@/actions";
+// src/app/profile/page.tsx
+import { getSession, checkPendingInvitations } from "@/actions";
 import ProfilePage from "@/components/profilePage";
 
 export default async function ProfilePageWrapper() {
@@ -9,7 +10,13 @@ export default async function ProfilePageWrapper() {
     isLoggedIn: session.isLoggedIn,
     userId: session.user?.id,
     username: session.user?.username,
+    email: session.user?.email, // Add email for invitation checking
   };
 
-  return <ProfilePage initialSession={serializableSession} />;
+  let pendingInvitations = [];
+  if (session.isLoggedIn && session.user?.email) {
+    pendingInvitations = await checkPendingInvitations(session.user.email);
+  }
+
+  return <ProfilePage initialSession={serializableSession} initialInvitations={pendingInvitations} />;
 }
