@@ -31,7 +31,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose, onComp
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="colorful-form">
+      <div className="colorful-form text-black">
         <h2 className="text-xl font-bold mb-4">Create New Company</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="form-group">
