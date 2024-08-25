@@ -7,9 +7,7 @@ interface CompanySelectorProps {
 }
 
 const CompanySelector: React.FC<CompanySelectorProps> = ({ companies }) => {
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(
-    companies.length > 0 ? companies[0] : null
-  );
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   useEffect(() => {
     // Dispatch an event when the selected company changes
@@ -25,6 +23,7 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ companies }) => {
       }}
       className="w-full p-2 bg-blue-700 text-white rounded"
     >
+      <option value="">Select a company</option>
       {companies.map((company) => (
         <option key={company.id} value={company.id}>
           {company.name}
