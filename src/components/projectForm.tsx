@@ -1,18 +1,27 @@
-"use client"; 
-
-import { useState, ChangeEvent, FormEvent } from "react";
+"use client";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createProject } from "@/actions"; 
+import { createProject } from "@/actions";
 import { Company, ProjectFormProps } from "@/lib";
 
-const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
+interface ExtendedProjectFormProps extends ProjectFormProps {
+  initialCompanyId?: string;
+}
+
+const ProjectForm: React.FC<ExtendedProjectFormProps> = ({ companies, userId, initialCompanyId }) => {
   const router = useRouter();
   const [project, setProject] = useState({
     name: "",
     description: "",
     client: "",
-    companyId: companies.length > 0 ? companies[0].id : "",
+    companyId: initialCompanyId || (companies.length > 0 ? companies[0].id : ""),
   });
+
+  useEffect(() => {
+    if (initialCompanyId) {
+      setProject(prev => ({ ...prev, companyId: initialCompanyId }));
+    }
+  }, [initialCompanyId]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -21,8 +30,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); 
-
+    e.preventDefault();
     try {
       const projectId = await createProject({
         companyId: project.companyId,
@@ -30,7 +38,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
         description: project.description,
         client: project.client,
       });
-
       router.push(`/company/projects/${projectId}`);
     } catch (error) {
       console.error("Error creating project:", error);
@@ -58,7 +65,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
           placeholder="Enter project name"
         />
       </div>
-
       <div>
         <label
           className="block text-blue-200 text-sm font-bold mb-2"
@@ -77,7 +83,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
           rows={4}
         />
       </div>
-
       <div>
         <label
           className="block text-blue-200 text-sm font-bold mb-2"
@@ -95,7 +100,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
           placeholder="Enter client name"
         />
       </div>
-
       <div>
         <label
           className="block text-blue-200 text-sm font-bold mb-2"
@@ -118,7 +122,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ companies, userId }) => {
           ))}
         </select>
       </div>
-
       <div className="flex justify-end">
         <button
           className="px-6 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors duration-200 shadow-lg text-sm font-semibold"

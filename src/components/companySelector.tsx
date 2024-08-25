@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Company, Project } from "@/lib";
-import { getCompanyProjects } from "@/actions";
-import ProjectList from "./projectList";
+import { Company } from "@/lib";
 
 interface CompanySelectorProps {
   companies: Company[];
@@ -12,21 +10,27 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ companies }) => {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(
     companies.length > 0 ? companies[0] : null
   );
-  const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    if (selectedCompany) {
-      getCompanyProjects(selectedCompany.id).then((fetchedProjects) =>
-        setProjects(fetchedProjects)
-      );
-    }
+    // Dispatch an event when the selected company changes
+    window.dispatchEvent(new CustomEvent('companySelected', { detail: selectedCompany }));
   }, [selectedCompany]);
 
   return (
-    <div className="bg-blue-800 shadow-lg rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-4 text-white">Select a Company</h2>
-      <ProjectList companies={companies} />
-    </div>
+    <select
+      value={selectedCompany?.id || ''}
+      onChange={(e) => {
+        const company = companies.find(c => c.id === e.target.value) || null;
+        setSelectedCompany(company);
+      }}
+      className="w-full p-2 bg-blue-700 text-white rounded"
+    >
+      {companies.map((company) => (
+        <option key={company.id} value={company.id}>
+          {company.name}
+        </option>
+      ))}
+    </select>
   );
 };
 
