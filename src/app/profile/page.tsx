@@ -1,6 +1,6 @@
 // src/app/profile/page.tsx
 import { getSession, checkPendingInvitations } from "@/actions";
-import ProfilePage from "@/components/profilePage";
+import ProfilePage from "@/components/profile/profilePage";
 
 export default async function ProfilePageWrapper() {
   const session = await getSession();

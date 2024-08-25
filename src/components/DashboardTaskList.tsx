@@ -6,7 +6,7 @@ import { RecordPageClientProps } from '@/lib';
 import { createTask, getTasksByRecordId, updateTask, getCompanyUsers, getProjectById, updateRecord } from '@/actions';
 import ViewTaskModal from '@/components/viewTaskModal';
 import EditTaskModal from '@/components/editTaskModal';
-import CreateTaskFormModal from '@/components/createTaskModal';
+import CreateTaskFormModal from '@/components/projects/createTaskModal';
 import EditRecordFormModal from '@/components/editRecordFormModal';
 import { formatDateToLocal } from '../app/lib/utils';
 

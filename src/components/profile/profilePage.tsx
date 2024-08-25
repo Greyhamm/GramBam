@@ -5,10 +5,10 @@ import { Task, Company, CompanyUser } from "@/lib";
 import ViewTaskModal from '@/components/viewTaskModal';
 import EditTaskModal from '@/components/editTaskModal';
 import CreateTaskModalProfile from '@/components/createTaskModalProfile';
-import CreateCompanyModal from '@/components/createCompanyModal';
-import { formatDateToLocal } from '../app/lib/utils';
+import CreateCompanyModal from './createCompanyModal';
+import { formatDateToLocal } from '../../app/lib/utils';
 import { Invitation } from '@/lib';
-import NotificationDropdown from './notificationDropdown';
+import NotificationDropdown from '../notificationDropdown';
 // Define a type for the serializable session data
 type SerializableSession = {
   isLoggedIn: boolean;

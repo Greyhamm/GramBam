@@ -1,9 +1,9 @@
 import { getUserCompanies, getSession } from "@/actions";
 import { Company } from "@/lib";
-import CreateProjectModal from "@/components/createProjectCompanyModal";
-import CompanySelector from "@/components/companySelector";
-import ProjectList from "@/components/projectList";
-import Sidebar from "@/components/companySidebar";
+import CreateProjectModal from "@/components/company/createProjectModal";
+import CompanySelector from "@/components/company/companySelector";
+import ProjectList from "@/components/company/projectList";
+import Sidebar from "@/components/company/companySidebar";
 import Link from 'next/link';
 
 export default async function CompanyPage() {

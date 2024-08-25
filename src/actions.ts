@@ -654,3 +654,99 @@ export async function declineInvitation(token: string): Promise<void> {
     WHERE token = ${token}
   `;
 }
+
+export async function fetchProjectsWithTasks(companyId: string, limit: number = 5): Promise<Project[]> {
+  try {
+    const query = `
+      SELECT p.id, p.company_id, p.name, p.description, p.created_at, p.client, p.lead_user,
+             r.id AS record_id, t.id AS task_id, t.due_date
+      FROM projects p
+      LEFT JOIN records r ON p.id = r.project_id
+      LEFT JOIN tasks t ON r.id = t.record_id
+      WHERE p.company_id = $1
+      ORDER BY t.due_date ASC NULLS LAST
+      LIMIT $2
+    `;
+
+    const result = await sql.query(query, [companyId, limit]);
+
+    const projectMap = new Map<string, Project>();
+
+    result.rows.forEach(row => {
+      if (row.id) {  // Ensure row.id is not null or undefined
+        const existingProject = projectMap.get(row.id);
+        if (!existingProject) {
+          projectMap.set(row.id, {
+            id: row.id,
+            company_id: row.company_id,
+            name: row.name,
+            description: row.description,
+            created_at: row.created_at,
+            client: row.client,
+            lead_user: row.lead_user,
+            earliest_task_due_date: row.due_date
+          });
+        } else if (row.due_date && (!existingProject.earliest_task_due_date || row.due_date < existingProject.earliest_task_due_date)) {
+          existingProject.earliest_task_due_date = row.due_date;
+        }
+      }
+    });
+
+    return Array.from(projectMap.values());
+  } catch (error) {
+    console.error('Error fetching projects with tasks:', error);
+    throw new Error('Failed to fetch projects with tasks');
+  }
+}
+
+export async function searchProjects(companyId: string, searchTerm: string): Promise<Project[]> {
+  try {
+    const query = `
+      SELECT id, company_id, name, description, created_at, client, lead_user
+      FROM projects
+      WHERE company_id = $1 AND (LOWER(name) LIKE LOWER($2) OR LOWER(description) LIKE LOWER($2))
+      ORDER BY created_at DESC
+    `;
+
+    const result = await sql.query(query, [companyId, `%${searchTerm}%`]);
+    return result.rows;
+  } catch (error) {
+    console.error('Error searching projects:', error);
+    throw new Error('Failed to search projects');
+  }
+}
+
+export async function fetchUsers(companyId: string): Promise<User[]> { //Used for getting lead user on companny page.
+  try {
+    const query = `
+      SELECT u.id, u.username
+      FROM userz u
+      JOIN user_roles ur ON u.id = ur.user_id
+      WHERE ur.company_id = $1
+    `;
+
+    const result = await sql.query(query, [companyId]);
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw new Error('Failed to fetch users');
+  }
+}
+
+
+export async function fetchCompanyClients(companyId: string): Promise<string[]> {
+  try {
+    const query = `
+      SELECT DISTINCT client
+      FROM projects
+      WHERE company_id = $1 AND client IS NOT NULL AND client != ''
+      ORDER BY client
+    `;
+
+    const result = await sql.query(query, [companyId]);
+    return result.rows.map(row => row.client);
+  } catch (error) {
+    console.error('Error fetching company clients:', error);
+    throw new Error('Failed to fetch company clients');
+  }
+}

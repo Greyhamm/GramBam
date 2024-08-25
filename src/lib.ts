@@ -29,8 +29,8 @@ export const sessionOptions: SessionOptions = {
 }
 
 export interface User  {
-    id: string;
-    username: string;
+    id: string ;
+    username: string ;
     email: string;
     password_hash: string;
   };
@@ -61,7 +61,9 @@ export interface CreateProjectParams {
     created_at: string ; // ISO date string
     client?: string;
     lead_user?: string;
+    earliest_task_due_date?: string | null;  // New optional property
   }
+
 
 export interface RecordData {
     name: string;
