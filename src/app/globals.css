@@ -61,7 +61,7 @@ body {
   flex-direction: column;
   justify-content: center; /* Center vertically */
   align-items: center; /* Center horizontally */
-  background: linear-gradient(to bottom right, #FFB347, #756844);
+  background: rgb(37, 57, 133);
   color: #eee;
   font-family: Arial, sans-serif;
   min-height: 100vh;
