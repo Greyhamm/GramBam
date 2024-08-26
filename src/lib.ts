@@ -1,6 +1,12 @@
 import { SessionOptions } from "iron-session";
 
 
+/*
+
+Session Library
+
+*/
+
 // Define a new type for session user data without sensitive fields
 type SessionUser = Omit<User, 'password_hash'>;
 

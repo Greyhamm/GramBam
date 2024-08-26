@@ -40,18 +40,14 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = ({ task, onClose, onEdit, co
             <label className="form-label">Assigned To</label>
             <p className="form-input bg-gray-100">{getAssignedUserName(task.assigned_to)}</p>
           </div>
-          {formattedDueDate && (
-            <div className="form-group">
-              <label className="form-label">Due Date</label>
-              <p className="form-input bg-gray-100">{formattedDueDate}</p>
-            </div>
-          )}
-          {formattedCreatedAt && (
-            <div className="form-group">
-              <label className="form-label">Created At</label>
-              <p className="form-input bg-gray-100">{formattedCreatedAt}</p>
-            </div>
-          )}
+          <div className="form-group">
+            <label className="form-label">Due Date</label>
+            <p className="form-input bg-gray-100">{formattedDueDate}</p>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Created At</label>
+            <p className="form-input bg-gray-100">{formattedCreatedAt}</p>
+          </div>
           <div className="flex justify-end space-x-2">
             <button onClick={onClose} className="form-button bg-gray-300 text-black hover:bg-gray-400">
               Close
