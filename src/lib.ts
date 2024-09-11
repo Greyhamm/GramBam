@@ -102,6 +102,7 @@ export interface Task {
   description: string;
   status: 'pending' | 'in_progress' | 'completed';
   assigned_to: string;
+  assigned_by: string; // Add this line
   due_date: string;
   created_at: string;
 }

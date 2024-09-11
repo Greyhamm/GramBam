@@ -1,18 +1,21 @@
+// src/components/projects/createTaskModal.tsx
+
 import React, { useState, useEffect } from 'react';
 import { Task, CompanyUser } from '@/lib';
 
 interface CreateTaskFormModalProps {
   onClose: () => void;
-  onSave: (newTask: Omit<Task, 'id' | 'record_id' | 'created_at'>) => void;
+  onSave: (newTask: Omit<Task, 'id' | 'record_id' | 'created_at' | 'assigned_by'>) => void;
   companyUsers: CompanyUser[];
+  recordId: string;
 }
 
-const CreateTaskFormModal: React.FC<CreateTaskFormModalProps> = ({ onClose, onSave, companyUsers }) => {
-  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'record_id' | 'created_at'>>({ 
-    name: '', 
-    description: '', 
-    status: 'pending', 
-    assigned_to: '', 
+const CreateTaskFormModal: React.FC<CreateTaskFormModalProps> = ({ onClose, onSave, companyUsers, recordId }) => {
+  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'record_id' | 'created_at' | 'assigned_by'>>({
+    name: '',
+    description: '',
+    status: 'pending',
+    assigned_to: '',
     due_date: ''
   });
 

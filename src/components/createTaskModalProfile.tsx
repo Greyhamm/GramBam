@@ -1,10 +1,12 @@
+// src/components/createTaskModalProfile.tsx
+
 import React, { useState, useEffect } from 'react';
 import { Task, CompanyUser, Company, Project, Record } from '@/lib';
 import { getCompanyProjects, fetchProjectRecords, getCompanyUsers } from '@/actions';
 
 interface CreateTaskModalProfileProps {
   onClose: () => void;
-  onSave: (newTask: Omit<Task, 'id' | 'created_at'>) => void;
+  onSave: (newTask: Omit<Task, 'id' | 'created_at' | 'assigned_by'>) => void;
   companies: Company[];
 }
 
@@ -19,7 +21,7 @@ const CreateTaskModalProfile: React.FC<CreateTaskModalProfileProps> = ({
   const [records, setRecords] = useState<Record[]>([]);
   const [selectedRecord, setSelectedRecord] = useState<string>('');
   const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
-  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'created_at'>>({
+  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'created_at' | 'assigned_by'>>({
     name: '',
     description: '',
     status: 'pending',

@@ -1,3 +1,5 @@
+// page.tsx
+
 import { getRecordById, getSession } from "@/actions";
 import { cookies } from "next/headers";
 import { sessionOptions, SessionData } from '@/lib';

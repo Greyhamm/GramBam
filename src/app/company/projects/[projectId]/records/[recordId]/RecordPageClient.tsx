@@ -1,3 +1,6 @@
+
+// RecordPageClient.tsx
+
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Record, Task, Project, CompanyUser } from "@/lib";
@@ -22,7 +25,6 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
   const [isEditRecordModalOpen, setIsEditRecordModalOpen] = useState(false);
   const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
   const [project, setProject] = useState<Project | null>(null);
-
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -52,7 +54,7 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
     fetchProjectAndUsers();
   }, [fetchTasks, projectId]);
 
-  const handleCreateTask = async (newTask: Omit<Task, 'id' | 'record_id' | 'created_at'>) => {
+  const handleCreateTask = async (newTask: Omit<Task, 'id' | 'record_id' | 'created_at' | 'assigned_by'>) => {
     try {
       await createTask(record.id, newTask);
       fetchTasks();
@@ -80,7 +82,6 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
       console.error('Error updating task:', error);
     }
   };
-
 
   const handleEditRecord = () => {
     setIsEditRecordModalOpen(true);
@@ -176,6 +177,7 @@ export default function RecordPageClient({ record: initialRecord, projectId }: R
             onClose={() => setIsCreateModalOpen(false)}
             onSave={handleCreateTask}
             companyUsers={companyUsers}
+            recordId={record.id}
           />
         )}
 

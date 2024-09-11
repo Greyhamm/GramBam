@@ -429,16 +429,22 @@ export async function getRecordById(recordId: string): Promise<Record | null> {
 
 
 export async function createTask(recordId: string, taskData: Partial<Task>) {
+  const session = await getSession();
+  if (!session.isLoggedIn || !session.user) {
+    throw new Error("You must be logged in to create a task.");
+  }
+
   const { name, description, status, assigned_to, due_date } = taskData;
   const created_at = new Date().toISOString();
+  const assigned_by = session.user.id;
 
   try {
-    console.log('Creating task with data:', { recordId, ...taskData, created_at });
+    console.log('Creating task with data:', { recordId, ...taskData, created_at, assigned_by });
 
     const result = await sql`
-      INSERT INTO tasks (record_id, name, description, status, assigned_to, due_date, created_at)
-      VALUES (${recordId}, ${name}, ${description}, ${status || 'pending'}, ${assigned_to || null}, ${due_date || null}, ${created_at})
-      RETURNING id, record_id, name, description, status, assigned_to, due_date, created_at
+      INSERT INTO tasks (record_id, name, description, status, assigned_to, assigned_by, due_date, created_at)
+      VALUES (${recordId}, ${name}, ${description}, ${status || 'pending'}, ${assigned_to || null}, ${assigned_by}, ${due_date || null}, ${created_at})
+      RETURNING id, record_id, name, description, status, assigned_to, assigned_by, due_date, created_at
     `;
 
     console.log('Task created successfully:', result.rows[0]);
