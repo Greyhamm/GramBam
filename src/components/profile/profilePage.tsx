@@ -9,6 +9,7 @@ import CreateCompanyModal from './createCompanyModal';
 import { formatDateToLocal } from '../../app/lib/utils';
 import { Invitation } from '@/lib';
 import NotificationDropdown from '../notificationDropdown';
+
 // Define a type for the serializable session data
 type SerializableSession = {
   isLoggedIn: boolean;
@@ -16,8 +17,6 @@ type SerializableSession = {
   username?: string;
   email?: string;
 };
-
-
 
 const ProfilePage = ({ 
   initialSession, 
@@ -37,7 +36,6 @@ const ProfilePage = ({
   const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState(false);
   const [invitations, setInvitations] = useState<Invitation[]>(initialInvitations);
   const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
-
 
   const fetchData = useCallback(async () => {
     if (session.isLoggedIn && session.email) {
@@ -60,9 +58,14 @@ const ProfilePage = ({
     fetchData();
   }, [fetchData]);
 
-  const handleCreateTask = async (newTask: Omit<Task, 'id' | 'created_at'>) => {
+  const handleCreateTask = async (newTask: Omit<Task, 'id' | 'assigned_by' | 'created_at'>) => {
     try {
-      await createTask(newTask.record_id, newTask);
+      // Assuming the current user is the one assigning the task
+      const taskWithAssignedBy = {
+        ...newTask,
+        assigned_by: session.userId || ''
+      };
+      await createTask(newTask.record_id, taskWithAssignedBy);
       fetchData();
       setIsCreateTaskModalOpen(false);
     } catch (error) {
@@ -174,7 +177,6 @@ const ProfilePage = ({
         </button>
       </div>
 
-
       {/* Main content */}
       <div className="flex-1 p-8">
         <div className="bg-blue-800 shadow-lg rounded-lg mb-8 p-6">
@@ -208,7 +210,6 @@ const ProfilePage = ({
             </div>
           </div>
         </div>
-
 
         <div className="flex flex-wrap -mx-4 mb-8">
           {renderTaskColumn('pending')}

@@ -1,4 +1,4 @@
-// src/components/createTaskModalProfile.tsx
+// src/components/profile/createTaskModalProfile.tsx
 
 import React, { useState, useEffect } from 'react';
 import { Task, CompanyUser, Company, Project, Record } from '@/lib';
